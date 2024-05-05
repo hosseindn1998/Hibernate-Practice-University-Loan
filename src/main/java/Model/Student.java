@@ -6,9 +6,11 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,23 +19,37 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Builder
+@ToString
 @Table(name = "student")
-public class Student extends BaseEntity {
+public class Student extends BaseEntity<Long>{
     String firstName;
     String lastName;
     String fatherName;
     String motherName;
     String birthCertificateNumber;
+    @Pattern(regexp = "^[0-9]{10}$")
     String nationalCode;
-    Date birthDate;
+    LocalDate birthDate;
     String studentCode;
     String universityName;
-    String universityType;
+    @Enumerated(EnumType.ORDINAL)
+    UniversityTypes universityType;
     Integer appliedYear;
-    String eduStage;
-    String appliedType;
+    AppliedTerm appliedTerm;
+    Integer currentTerm;
+    LocalDate expireDate;
+    @Enumerated(EnumType.ORDINAL)
+    EduStages eduStage;
+    @Enumerated(EnumType.ORDINAL)
+    AppliedTypes appliedType;
+    @Pattern(regexp = "^[0-9]{10}$")
     String username;
+    @Pattern(regexp = "^((?=\\S*?[A-Z])(?=\\S*?[a-z])(?=\\S*?[0-9]).{6,})\\S$")
     String password;
+    @ElementCollection
+    @ToString.Exclude
+    @OneToMany(mappedBy = "student",cascade = CascadeType.MERGE)
+    List<Loan> loan;
 
 
 }

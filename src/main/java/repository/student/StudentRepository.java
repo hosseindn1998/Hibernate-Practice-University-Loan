@@ -1,4 +1,4 @@
-package Repository.student;
+package repository.student;
 
 import Model.Student;
 import base.repository.BaseRepository;

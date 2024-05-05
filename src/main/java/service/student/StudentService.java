@@ -1,4 +1,4 @@
-package Service.student;
+package service.student;
 
 import Model.Student;
 import base.service.BaseService;
