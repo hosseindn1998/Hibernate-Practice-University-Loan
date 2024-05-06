@@ -8,6 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
+import java.util.List;
+
 public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements LoanRepository {
 
     @Override
@@ -45,6 +47,13 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
         return query.list()!= null;
     }
 
+    @Override
+    public List<Loan> findLoansByStudentId(Integer studentId) {
+        Session session = SessionFactorySingleton.getInstance().getCurrentSession();
+        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.id = :id" , Loan.class);
+        query.setParameter("id", studentId);
+        return query.list();
+    }
 
     public LoanRepositoryImpl(SessionFactory sessionFactory) {
         super(sessionFactory);

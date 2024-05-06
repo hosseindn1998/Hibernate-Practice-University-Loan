@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@ToString(callSuper = true)
+@ToString
 @Builder
 public class Loan extends BaseEntity<Long> {
     @ManyToOne

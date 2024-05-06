@@ -10,6 +10,8 @@ import org.hibernate.SessionFactory;
 import repository.card.CardRepository;
 import repository.loan.LoanRepository;
 
+import java.util.List;
+
 public class LoanServiceImpl extends BaseServiceImpl<Loan,Long, LoanRepository>implements LoanService {
 
     private final SessionFactory sessionFactory;
@@ -66,6 +68,18 @@ public class LoanServiceImpl extends BaseServiceImpl<Loan,Long, LoanRepository>i
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return Boolean.TRUE;
+        }
+    }
+    @Override
+    public List<Loan> findLoansByStudentId(Integer studentId) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            List<Loan> result=repository.findLoansByStudentId(studentId);
+            session.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 }

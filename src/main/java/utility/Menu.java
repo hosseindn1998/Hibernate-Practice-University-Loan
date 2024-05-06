@@ -30,7 +30,7 @@ public class Menu {
     private final InstallmentServiceImpl installmentService = ApplicationContext.getInstallmentService();
     private final CardServiceImpl caredService = ApplicationContext.getCardService();
     private final LoanServiceImpl loanService = ApplicationContext.getLoanService();
-    private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService=ApplicationContext.getMorInfoForHousingLoanService();
+    private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService = ApplicationContext.getMorInfoForHousingLoanService();
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -108,7 +108,7 @@ public class Menu {
         switch (number) {
             case 0 -> logOut();
             case 1 -> signUpForLoan();
-//            case 2 -> employeeServiceDeleteStudent();
+            case 2 -> seeAndPeyInstallments();
 
 
             default -> {
@@ -257,15 +257,7 @@ public class Menu {
 
 
     public void signUpForLoan() {
-
-        Boolean isEligibleHousingLoan = false;
-        Integer loanAmount = 0;
-
         Student student = studentService.findById(loggedInUserId);
-        Boolean isEligibleEducationLoan = loanService.isExistEduLoanInTerm(student);
-        Boolean isEligibleTuitionLoan = loanService.isExistTuitionLoanInTerm(student);
-
-
         System.out.println("وام مورد نظر خود را انتخاب فرمائید :");
         System.out.println("1-وام تحصیلی");
         System.out.println("2-وام ودیعه مسکن ");
@@ -273,9 +265,24 @@ public class Menu {
         int number = scanner.nextInt();
         scanner.nextLine();
         switch (number) {
-            case 1 -> educationLoan();
-            case 2 -> housingLoan();
-            case 3 -> tuitionLoan();
+            case 1 -> {
+                if (!loanService.isExistEduLoanInTerm(student)) educationLoan();
+                else {
+                    System.out.println("شما در این ترم این رام را دریافت کرده اید");
+                }
+            }
+            case 2 -> {
+                if (!loanService.isExistHousingLoanInTerm(student)) housingLoan();
+                else {
+                    System.out.println("شما در این مقطع این رام را دریافت کرده اید");
+                }
+            }
+            case 3 -> {
+                if (!loanService.isExistTuitionLoanInTerm(student)) tuitionLoan();
+                else {
+                    System.out.println("شما در این ترم این رام را دریافت کرده اید");
+                }
+            }
 
             default -> {
                 System.out.println("Fake input,please Enter Number");
@@ -287,7 +294,7 @@ public class Menu {
     }
 
     public Card getCardFromInput() {
-        System.out.println("Enter first four Card Number (****) **** **** **** :");
+        System.out.println("چهار شماره اول را وارد کنید (****) **** **** **** :");
         String fourNumber1 = scanner.next();
         System.out.println("Enter 2th four Card Number **** (****) **** **** :");
         String fourNumber2 = scanner.next();
@@ -337,8 +344,7 @@ public class Menu {
         }
         LocalDate getLoanDate = LocalDate.now();
         Card card = getCardFromInput();
-        if(caredService.isExist(card))
-            caredService.saveOrUpdate(card);
+        caredService.saveOrUpdate(card);
 
 
         Loan loan = Loan.builder()
@@ -420,8 +426,7 @@ public class Menu {
         }
         morInfoForHousingLoanService.saveOrUpdate(morInfoForHousingLoan);
         Card card = getCardFromInput();
-        if(caredService.isExist(card))
-            caredService.saveOrUpdate(card);
+        caredService.saveOrUpdate(card);
 
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
@@ -490,8 +495,7 @@ public class Menu {
 
     public void tuitionLoan() {
         Card card = getCardFromInput();
-        if(caredService.isExist(card))
-            caredService.saveOrUpdate(card);
+        caredService.saveOrUpdate(card);
 
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
@@ -565,6 +569,83 @@ public class Menu {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+
+    public void seeAndPeyInstallments() {
+        System.out.println("برای مشاهده و پرداخت اقساط، وام مورد نظر خود را از لیست زیر انتخاب فرمائید :");
+        List<Loan> loansByStudentId = loanService.findLoansByStudentId(loggedInUserId.intValue());
+        System.out.println("تاریخ دریافت وام -ترم دریافت وام-مبلغ وام-نوع وام-آی دی");
+        for (Loan l : loansByStudentId) {
+            System.out.print(l.getId() + "-" + l.getLoanType() + " " + l.getAmount() + " " + l.getGetLoanTerm()
+                    + " " + l.getGetLoanDate());
+            System.out.println();
+        }
+        System.out.println("لطفا فقط آی دی وام را وارد کنید");
+        Integer loanId = scanner.nextInt();
+        System.out.println("1-مشاهده اقساط پرداخت شده ");
+        System.out.println("2-مشاهده اقساط پرداخت نشده ");
+        System.out.println("3-پرداخت اقساط ");
+        System.out.println("0-بازگشت");
+        int number = scanner.nextInt();
+        scanner.nextLine();
+        switch (number) {
+            case 0 -> studentMenu();
+            case 1 -> seePayedInstallments(loanId);
+            case 2 -> seeNotPayedInstallments(loanId);
+            case 3 -> payInstallment(loanId);
+
+            default -> {
+                System.out.println("Fake input,please Enter Number");
+                signUpForLoan();
+            }
+
+        }
+        studentMenu();
+    }
+
+    public void seeNotPayedInstallments(Integer loanId) {
+        List<Installment> notPayedByLoanId = installmentService.findNotPayedByLoanId(loanId);
+        for (Installment i : notPayedByLoanId) {
+            System.out.println(i.getPaymentStageNum() + " - " + i.getAmount() + " " + i.getDueDate());
+
+        }
+        seeAndPeyInstallments();
+    }
+
+    public void seePayedInstallments(Integer loanId) {
+        List<Installment> payedByLoanId = installmentService.findPayedByLoanId(loanId);
+        for (Installment i : payedByLoanId) {
+            System.out.println(i.getPaymentStageNum() + " - " + i.getPayDate());
+        }
+        seeAndPeyInstallments();
+    }
+
+    public void payInstallment(Integer loanId) {
+//        seeNotPayedInstallments(loanId);
+        System.out.println("لطفا شماره قسط مورد نظر خود را برای پرداخت وارد کنید");
+        Integer installmentId = scanner.nextInt();
+        scanner.nextInt();
+        Installment installment = installmentService.findById(Long.valueOf(installmentId.toString()));
+        Card card = getCardFromInput();
+        Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
+        if (
+                fetchCard.getFourNumber1().equals(card.getFourNumber1()) &&
+                        fetchCard.getFourNumber2().equals(card.getFourNumber2()) &&
+                        fetchCard.getFourNumber3().equals(card.getFourNumber3()) &&
+                        fetchCard.getFourNumber4().equals(card.getFourNumber4()) &&
+                        fetchCard.getCvv2().equals(card.getCvv2()) &&
+                        fetchCard.getExpireYear().equals(card.getExpireYear()) &&
+                        fetchCard.getExpireMonth().equals(card.getExpireMonth())
+        ) {
+            installment.setPayedStatus(Boolean.TRUE);
+            installmentService.saveOrUpdate(installment);
+            System.out.println("پرداخت با موفقیت انجام شد");
+            seeAndPeyInstallments();
+        } else {
+            System.out.println("شماره کارت نامعتبر است لطفا کارت مربوط به این وام را وارد کنید");
+            seeAndPeyInstallments();
+        }
+
+    }
 
 }
 
