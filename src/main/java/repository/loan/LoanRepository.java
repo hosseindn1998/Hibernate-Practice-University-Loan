@@ -7,5 +7,8 @@ import base.repository.BaseRepository;
 
 public interface LoanRepository extends BaseRepository<Loan,Long> {
     Boolean isExistEduLoanInTerm(Student student);
+    Boolean isExistTuitionLoanInTerm(Student student);
+    Boolean isExistHousingLoanInTerm(Student student);
+    Boolean wifeHousingLoanCheck(String wifeNationalCode);
 
 }

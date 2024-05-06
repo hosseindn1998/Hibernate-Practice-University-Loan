@@ -6,6 +6,7 @@ import org.hibernate.grammars.hql.HqlParser;
 import service.card.CardServiceImpl;
 import service.installment.InstallmentServiceImpl;
 import service.loan.LoanServiceImpl;
+import service.morInfo.MorInfoForHousingLoanServiceImpl;
 import service.student.StudentServiceImpl;
 
 import java.time.Duration;
@@ -29,6 +30,7 @@ public class Menu {
     private final InstallmentServiceImpl installmentService = ApplicationContext.getInstallmentService();
     private final CardServiceImpl caredService = ApplicationContext.getCardService();
     private final LoanServiceImpl loanService = ApplicationContext.getLoanService();
+    private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService=ApplicationContext.getMorInfoForHousingLoanService();
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -118,7 +120,7 @@ public class Menu {
 
     public void updateCurrentTerm() {
         Student student = studentService.findById(loggedInUserId);
-        LocalDate loginDate = LocalDate.now();
+        LocalDate loginDate = LocalDate.of(1403, 2, 21);
         LocalDate inputDate;
         LocalDate mehrDate = LocalDate.of(student.getAppliedYear(), 7, 1);
         LocalDate bahmanDate = LocalDate.of(student.getAppliedYear(), 10, 1);
@@ -253,14 +255,15 @@ public class Menu {
         publicMenu();
     }
 
+
     public void signUpForLoan() {
 
-        Boolean isEligibleEducationLoan = false;
-        Boolean isEligibleTuitionLoan = false;
         Boolean isEligibleHousingLoan = false;
         Integer loanAmount = 0;
 
         Student student = studentService.findById(loggedInUserId);
+        Boolean isEligibleEducationLoan = loanService.isExistEduLoanInTerm(student);
+        Boolean isEligibleTuitionLoan = loanService.isExistTuitionLoanInTerm(student);
 
 
         System.out.println("وام مورد نظر خود را انتخاب فرمائید :");
@@ -299,7 +302,7 @@ public class Menu {
         System.out.println("Enter Month of expire :");
         String expireMonth = scanner.next();
 
-        return Card.builder()
+        Card card = Card.builder()
                 .fourNumber1(fourNumber1)
                 .fourNumber2(fourNumber2)
                 .fourNumber3(fourNumber3)
@@ -308,6 +311,13 @@ public class Menu {
                 .expireYear(expireYear)
                 .expireMonth(expireMonth)
                 .build();
+        List<String> validCards = List.of("6037", "5894", "6273", "6280");
+
+        while (!validCards.contains(card.getFourNumber1())) {
+            System.out.println("کارت متعلق به بانک های ملی مسکن تجارت یا رفاه نیست لطفا مشخصات کارت مربوط به بانک های مذکور را وارد کنید ");
+            card = getCardFromInput();
+        }
+        return card;
     }
 
     public void educationLoan() {
@@ -326,9 +336,11 @@ public class Menu {
             amount = 2600000;
         }
         LocalDate getLoanDate = LocalDate.now();
-
         Card card = getCardFromInput();
-        caredService.saveOrUpdate(card);
+        if(caredService.isExist(card))
+            caredService.saveOrUpdate(card);
+
+
         Loan loan = Loan.builder()
                 .student(student)
                 .studentStage(student.getEduStage())
@@ -365,9 +377,52 @@ public class Menu {
         studentMenu();
     }
 
+    public MorInfoForHousingLoan getMorInfoForHousingLoan() {
+        System.out.println("لطفا کدملی همسر خود را وارد کنید :");
+        String wifeNationalCode = scanner.next();
+        System.out.println("لطفا نام همسر خود را وارد کنید :");
+        String wifeFirstName = scanner.next();
+        System.out.println("لطفا نام خانوادگی همسر خود را وارد کنید :");
+        String wifeLastName = scanner.next();
+        System.out.println("لطفا استان درج شده در اجاره نامه خود را وارد کنید :");
+        String province = scanner.next();
+        System.out.println("لطفا شهر درج شده در اجاره نامه خود را وارد کنید :");
+        String city = scanner.next();
+        System.out.println(" لطفا خیابان اصلی درج شده در اجاره نامه خود را وارد کنید :");
+        String street = scanner.next();
+        System.out.println("لطفا خیابان فرعی درج شده در اجاره نامه خود را وارد کنید :");
+        String subStreet = scanner.next();
+        System.out.println("لطفا کوچه درج شده در اجاره نامه خود را وارد کنید :");
+        String alley = scanner.next();
+        System.out.println("لطفا پلاک درج شده در اجاره نامه خود را وارد کنید :");
+        String plaque = scanner.next();
+        System.out.println("لطفا شماره اجاره نامه خود را وارد کنید :");
+        String rentAgreeNum = scanner.next();
+        return MorInfoForHousingLoan.builder()
+                .wifeNationalCode(wifeNationalCode)
+                .wifeFirstName(wifeFirstName)
+                .wifeLastName(wifeLastName)
+                .province(province)
+                .city(city)
+                .street(street)
+                .subStreet(subStreet)
+                .alley(alley)
+                .plaque(plaque)
+                .rentAgreeNum(rentAgreeNum)
+                .build();
+    }
+
     public void housingLoan() {
+        MorInfoForHousingLoan morInfoForHousingLoan = getMorInfoForHousingLoan();
+        if (!loanService.wifeHousingLoanCheck(morInfoForHousingLoan.getWifeNationalCode())) {
+            System.out.println("همسر شما قبلا از این وام استفاده کرده لذا شما واجد شرایط نمی باشید");
+            studentMenu();
+        }
+        morInfoForHousingLoanService.saveOrUpdate(morInfoForHousingLoan);
         Card card = getCardFromInput();
-        caredService.saveOrUpdate(card);
+        if(caredService.isExist(card))
+            caredService.saveOrUpdate(card);
+
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
         System.out.println("شهر محل زندگی خود را وارد کنید");
@@ -400,8 +455,10 @@ public class Menu {
                 .studentStage(student.getEduStage())
                 .amount(amount)
                 .getLoanDate(getLoanDate)
+                .getLoanTerm(student.getCurrentTerm())
                 .studentCity(city)
                 .card(card)
+                .morInfoForHousingLoan(morInfoForHousingLoan)
                 .isSettlement(Boolean.FALSE)
                 .loanType(LoanTypes.HOUSING)
                 .build();
@@ -433,6 +490,9 @@ public class Menu {
 
     public void tuitionLoan() {
         Card card = getCardFromInput();
+        if(caredService.isExist(card))
+            caredService.saveOrUpdate(card);
+
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
         if (student.getEduStage().equals(EduStages.KARDANI) ||
@@ -481,7 +541,6 @@ public class Menu {
             installmentService.saveOrUpdate(installment);
 
         }
-
         studentMenu();
     }
 
@@ -503,243 +562,6 @@ public class Menu {
             student.setExpireDate(inputDate.plusYears(5));
         }
     }
-
-//
-//    public void employeeServiceAddProfessor() {
-//        Professor professor = getProfessorFromInput();
-//        professorService.saveOrUpdate(professor);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceDeleteProfessor() {
-//        System.out.println("please enter id");
-//        Integer id = scanner.nextInt();
-//        Professor professor = professorService.findById(id.longValue());
-//        professorService.delete(professor);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceEditProfessor() {
-//        System.out.println("please enter id");
-//        Integer id = scanner.nextInt();
-//        Professor professor = professorService.findById(id.longValue());
-//        System.out.println("To edit fields please Enter Number 1  for first name ");
-//        System.out.println("To edit fields please Enter Number 2  for last name ");
-//        System.out.println("To edit fields please Enter Number 3  for national code ");
-//        System.out.println("To edit fields please Enter Number 4  for password ");
-//        System.out.println("To edit fields please Enter Number 5  for phone number ");
-//        System.out.println("To edit fields please Enter Number 6  for username ");
-//        System.out.println("To edit fields please Enter Number 7  for email ");
-//        System.out.println("To edit fields please Enter Number 8  for date of birth ");
-//        System.out.println("To edit fields please Enter Number 9  for hoqoq paye ");
-//        System.out.println("To edit fields please Enter Number 10  for vahed mabna ");
-//        System.out.println("To edit fields please Enter Number 11  for salary ");
-//        System.out.println("To edit fields please Enter Number 12  for is heyat elmi ");
-//
-//        int number = scanner.nextInt();
-//        scanner.nextLine();
-//        switch (number) {
-//            case 1 -> professor.setFirstName(scanner.next());
-//            case 2 -> professor.setLastName(scanner.next());
-//            case 3 -> professor.setNationalCode(scanner.next());
-//            case 4 -> professor.setPassword(scanner.next());
-//            case 5 -> professor.setPhoneNumber(scanner.next());
-//            case 6 -> professor.setUsername(scanner.next());
-//            case 7 -> professor.setEmail(scanner.next());
-//            case 8 -> professor.setDateOfBirth(scanner.next());
-//            case 9 -> professor.setHoqoqPaye(scanner.nextInt());
-//            case 10 -> professor.setVahedMabna(scanner.nextInt());
-//            case 11 -> professor.setSalary(scanner.nextInt());
-//            case 12 -> professor.setIsHeyatElmi(scanner.next());
-//
-//
-//            default -> {
-//                System.out.println("Fake input,please Enter Number");
-//                employeeServiceEditProfessor();
-//            }
-//        }
-//        professorService.saveOrUpdate(professor);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceAddEmployee() {
-//        Employee employee = getEmployeeFromInput();
-//        employeeService.saveOrUpdate(employee);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceDeleteEmployee() {
-//        System.out.println(employeeService.showAll(Employee.class));
-//        Integer id = scanner.nextInt();
-//        Employee employee = employeeService.findById(id.longValue());
-//        employeeService.delete(employee);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceEditEmployee() {
-//        System.out.println("please enter id");
-//        Integer id = scanner.nextInt();
-//        Employee employee = employeeService.findById(id.longValue());
-//        System.out.println("To edit fields please Enter Number 1  for first name ");
-//        System.out.println("To edit fields please Enter Number 2  for last name ");
-//        System.out.println("To edit fields please Enter Number 3  for national code ");
-//        System.out.println("To edit fields please Enter Number 4  for password ");
-//        System.out.println("To edit fields please Enter Number 5  for phone number ");
-//        System.out.println("To edit fields please Enter Number 6  for username ");
-//        System.out.println("To edit fields please Enter Number 7  for email ");
-//        System.out.println("To edit fields please Enter Number 8  for date of birth ");
-//        System.out.println("To edit fields please Enter Number 9  for last Average ");
-//        int number = scanner.nextInt();
-//        scanner.nextLine();
-//        switch (number) {
-//            case 1 -> employee.setFirstName(scanner.next());
-//            case 2 -> employee.setLastName(scanner.next());
-//            case 3 -> employee.setNationalCode(scanner.next());
-//            case 4 -> employee.setPassword(scanner.next());
-//            case 5 -> employee.setPhoneNumber(scanner.next());
-//            case 6 -> employee.setUsername(scanner.next());
-//            case 7 -> employee.setEmail(scanner.next());
-//            case 8 -> employee.setDateOfBirth(scanner.next());
-//            case 9 -> employee.setSalary(scanner.nextInt());
-//
-//
-//            default -> {
-//                System.out.println("Fake input,please Enter Number");
-//                employeeServiceEditEmployee();
-//            }
-//
-//        }
-//        employeeService.saveOrUpdate(employee);
-//        employeeMunu();
-//    }
-//
-//    public void employeeServiceAddCourse() {
-//        Course course = getCourseFromInput();
-//        courseService.saveOrUpdate(course);
-//        courseServices();
-//    }
-//
-//    public void employeeServiceDeleteCourse() {
-//        System.out.println("please enter id");
-//        Integer id = scanner.nextInt();
-//        Course course = courseService.findById(id.longValue());
-//        courseService.delete(course);
-//        courseServices();
-//    }
-//
-//
-//    public void employeeServiceEditCourse() {
-//        System.out.println("please enter id");
-//        Integer id = scanner.nextInt();
-//        Course course = courseService.findById(id.longValue());
-//        System.out.println("To edit fields please Enter Number 1  for course name ");
-//        System.out.println("To edit fields please Enter Number 2  for unit ");
-//        System.out.println("To edit fields please Enter Number 3  for course code ");
-//        System.out.println("To edit fields please Enter Number 4  for year");
-//
-//        int number = scanner.nextInt();
-//        scanner.nextLine();
-//        switch (number) {
-//            case 1 -> course.setCourseName(scanner.next());
-//            case 2 -> course.setUnit(scanner.nextInt());
-//            case 3 -> course.setCourseCode(scanner.next());
-//            case 4 -> course.setYear(scanner.nextInt());
-//
-//            default -> {
-//                System.out.println("Fake input,please Enter Number");
-//                employeeServiceAddCourse();
-//            }
-//
-//        }
-//        courseService.saveOrUpdate(course);
-//        courseServices();
-//    }
-//
-//    public void myServicesAsEmployee() {
-//
-//        System.out.println("Information = " + employeeService.findById(loggedInUserId));
-//        System.out.println(" salary = " + getBaseSalary());
-//        employeeMunu();
-//    }
-//
-//
-//    //////////////////////////////////////////////////////////////////////////
-//
-//    public void studentMunu() {
-//        System.out.println(" ***   Student Menu   ***");
-//        System.out.println("1- See My information");
-//        System.out.println("2- See Course List");
-//        System.out.println("3- Choose Course for Register");
-//        System.out.println("4- See Registered Courses + Final score");
-//        System.out.println("0- log out");
-//
-//
-//        int number = scanner.nextInt();
-//        scanner.nextLine();
-//        switch (number) {
-//            case 1 -> myServicesAsStudent();
-//            case 2 -> seeCoursesList();
-//            case 3 -> studentEnrollmentServices();
-//            case 4 -> seeFinalScores();
-//            case 0 -> logOut();
-//
-//
-//            default -> {
-//                System.out.println("Fake input,please Enter Number");
-//                studentMunu();
-//            }
-//
-//        }
-//    }
-//
-//
-//
-//    public void studentEnrollmentServices() {
-//        Integer maxUnit = 20;
-//
-//        courseService.showAll(Course.class).forEach(System.out::println);
-//        System.out.println("Choose Course_id that you want register ...");
-//        int chossedCourseId = scanner.nextInt();
-//        scanner.nextLine();
-//
-//        if (currentTermYear == 0 || currentTermNumber == 0) {
-//            System.out.println("Term not found Please Tel Education for add new Term");
-//            System.out.println("for continue enter any key");
-//            scanner.nextLine();
-//            studentMunu();
-//        }
-//        calculateLastTerm(currentTermYear, currentTermNumber);
-//        if (courseEnrollmentService.isAverageMorThan18(loggedInUserId.intValue(), lastTermYear, lastTermNumber))
-//            maxUnit = 24;
-//
-//        Integer unitStudent = courseOccurrenceService.findUnitStudent(loggedInUserId.intValue(), currentTermYear, currentTermNumber);
-//        Integer choosedCourseUnit = courseService.findById(Long.valueOf(chossedCourseId)).getUnit();
-//        if (choosedCourseUnit + unitStudent <= maxUnit) {
-//            if (!courseEnrollmentService.isCoursePassed(loggedInUserId.intValue(), chossedCourseId)) {
-//                if (!courseEnrollmentService.isEnrollment(loggedInUserId.intValue(), chossedCourseId)) {
-//                    CourseEnrollment courseEnrollment = new CourseEnrollment();
-//                    courseEnrollment.setStudent(studentService.findById(loggedInUserId));
-//                    System.out.println("Choose Group id that you want register ...");
-//                    int choosedCourseOccurrenceId = scanner.nextInt();
-//                    scanner.nextLine();
-//                    courseEnrollment.setCourseOccurrence(courseOccurrenceService.findById(Long.valueOf(choosedCourseOccurrenceId)));
-//                    courseEnrollmentService.saveOrUpdate(courseEnrollment);
-//                } else {
-//                    System.out.println("Course is Exists in Registered Courses in This Term ");
-//                    studentEnrollmentServices();
-//                }
-//            } else {
-//                System.out.println("this course passed last terms");
-//                studentEnrollmentServices();
-//            }
-//
-//        } else {
-//            System.out.println("your Max unit Courses for this Term reached" + "\n max unit=" + maxUnit +
-//                    "registered =" + unitStudent + "unit of Course that you choosed =" + choosedCourseUnit);
-//
-//        }
-//        studentMunu();
-//    }
 
 ///////////////////////////////////////////////////////////////////////////////////
 

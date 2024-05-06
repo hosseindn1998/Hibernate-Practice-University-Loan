@@ -31,7 +31,7 @@ public class Card  extends BaseEntity<Long> {
     String expireYear;
     @Pattern(regexp = "^[0-9]{2}$")
     String expireMonth;
-    @OneToMany(mappedBy = "card",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "card",cascade = CascadeType.MERGE)
     @ElementCollection
-    List<Loan>loan=new ArrayList<>();
+    List<Loan>loan;
 }

@@ -53,6 +53,7 @@ public class BaseServiceImpl<T extends BaseEntity<ID>,
             transaction.commit();
             return t;
         } catch (Exception e) {
+            e.printStackTrace();
             assert transaction != null;
             transaction.rollback();
             return null;

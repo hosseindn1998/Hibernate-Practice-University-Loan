@@ -17,6 +17,18 @@ public class CardServiceImpl extends BaseServiceImpl<Card,Long, CardRepository>i
         super(repository, sessionFactory);
         this.sessionFactory=sessionFactory;
     }
+    @Override
+    public Boolean  isExist(Card card) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Boolean result=repository.isExist(card);
+            session.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            throw new NotFoundException(String.format("entity %s not found", card));
+        }
+
+    }
 
 
 

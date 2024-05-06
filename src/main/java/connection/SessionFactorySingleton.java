@@ -22,6 +22,7 @@ public class SessionFactorySingleton {
                     .addAnnotatedClass(Installment.class)
                     .addAnnotatedClass(Loan.class)
                     .addAnnotatedClass(Student.class)
+                    .addAnnotatedClass(MorInfoForHousingLoan.class)
                     .buildMetadata()
                     .buildSessionFactory();
         }

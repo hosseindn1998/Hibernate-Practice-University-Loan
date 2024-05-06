@@ -31,10 +31,12 @@ public class Loan extends BaseEntity<Long> {
     Integer amount;
     LocalDate getLoanDate;
     @ToString.Exclude
-    @OneToMany(mappedBy = "loan",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "loan",cascade = CascadeType.MERGE)
     List<Installment> installment;
     Boolean isSettlement;
     @ManyToOne
     Card card;
+    @OneToOne
+    MorInfoForHousingLoan morInfoForHousingLoan;
 
 }
