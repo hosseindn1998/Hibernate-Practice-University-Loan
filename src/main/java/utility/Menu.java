@@ -54,8 +54,8 @@ public class Menu {
         System.out.println("0-خروج از برنامه");
 
 
-        int number = scanner.nextInt();
-        scanner.nextLine();
+        int number = getIntFromUser();
+
 
         switch (number) {
             case 1 -> signIn();
@@ -103,8 +103,8 @@ public class Menu {
         System.out.println("0- خروج از حساب کاربری");
 
 
-        int number = scanner.nextInt();
-        scanner.nextLine();
+        int number = getIntFromUser();
+
         switch (number) {
             case 0 -> logOut();
             case 1 -> signUpForLoan();
@@ -145,6 +145,21 @@ public class Menu {
         }
         student.setCurrentTerm(term);
         studentService.saveOrUpdate(student);
+    }
+
+    public Integer getIntFromUser() {
+        Integer input = null;
+        while (true) {
+            try {
+                input = scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("ورودی باید از جنس عدد باشد لطفا مجددا سعی کنید");
+            }
+            scanner.nextLine();
+        }
+        scanner.nextLine();
+        return input;
     }
 
     public Student getStudentFromInput() {
@@ -262,8 +277,7 @@ public class Menu {
         System.out.println("1-وام تحصیلی");
         System.out.println("2-وام ودیعه مسکن ");
         System.out.println("3-وام شهریه");
-        int number = scanner.nextInt();
-        scanner.nextLine();
+        int number = getIntFromUser();
         switch (number) {
             case 1 -> {
                 if (!loanService.isExistEduLoanInTerm(student)) educationLoan();
@@ -580,13 +594,12 @@ public class Menu {
             System.out.println();
         }
         System.out.println("لطفا فقط آی دی وام را وارد کنید");
-        Integer loanId = scanner.nextInt();
+        Integer loanId = getIntFromUser();
         System.out.println("1-مشاهده اقساط پرداخت شده ");
         System.out.println("2-مشاهده اقساط پرداخت نشده ");
         System.out.println("3-پرداخت اقساط ");
         System.out.println("0-بازگشت");
-        int number = scanner.nextInt();
-        scanner.nextLine();
+        int number = getIntFromUser();
         switch (number) {
             case 0 -> studentMenu();
             case 1 -> seePayedInstallments(loanId);
@@ -622,8 +635,7 @@ public class Menu {
     public void payInstallment(Integer loanId) {
 //        seeNotPayedInstallments(loanId);
         System.out.println("لطفا شماره قسط مورد نظر خود را برای پرداخت وارد کنید");
-        Integer installmentId = scanner.nextInt();
-        scanner.nextInt();
+        Integer installmentId = getIntFromUser();
         Installment installment = installmentService.findById(Long.valueOf(installmentId.toString()));
         Card card = getCardFromInput();
         Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
