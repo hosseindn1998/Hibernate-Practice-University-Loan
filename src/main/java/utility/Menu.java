@@ -2,6 +2,7 @@ package utility;
 
 import Model.*;
 import lombok.NoArgsConstructor;
+import me.moallemi.persiandate.PersianDate;
 import org.hibernate.grammars.hql.HqlParser;
 import service.card.CardServiceImpl;
 import service.installment.InstallmentServiceImpl;
@@ -33,6 +34,9 @@ public class Menu {
     private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService = ApplicationContext.getMorInfoForHousingLoanService();
 
     private final Scanner scanner = new Scanner(System.in);
+//    private LocalDate nowForExample=LocalDate.of(1403,02,20);
+//    private LocalDate nowForExample=LocalDate.of(1403,02,20);
+    private PersianDate nowForExample=PersianDate.of(1403,02,01);
 
 
     public void calculateLastTerm(int currentTermYear, int currentTermNumber) {
@@ -163,53 +167,75 @@ public class Menu {
     }
 
     public Student getStudentFromInput() {
+        String nationalCode;
+        String firstName;
+        String lastName;
+        String fatherName;
+        String motherName;
+        String birthCertificateNumber;
+        String birthDateStr;
+        String studentCode;
+        String universityName;
 
+        do {
+            System.out.println("نام خود را وارد کنید(حرف اول بزرگ) :");
+            firstName = scanner.next();
+        } while (!Validation.isValidName(firstName));
+        do {
+            System.out.println("نام خانوادگی خود را وارد کنید :");
+            lastName = scanner.next();
+        } while (!Validation.isValidName(lastName));
 
-        System.out.println("Enter first name :");
-        String firstName = scanner.next();
-        System.out.println("Enter last name :");
-        String lastName = scanner.next();
-        System.out.println("Enter father Name :");
-        String fatherName = scanner.next();
-        System.out.println("Enter mother Name :");
-        String motherName = scanner.next();
-        System.out.println("Enter birth certificate number :");
-        String birthCertificateNumber = scanner.next();
-        System.out.println("Enter national Code :");
-        String nationalCode = scanner.next();
-        System.out.println("Enter date of birth (for ex dd/MM/yyyy :");
-        String birthDateStr = scanner.next();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        do {
+            System.out.println("نام پدر خود را وارد کنید :");
+            fatherName = scanner.next();
+        } while (!Validation.isValidName(fatherName));
+
+        do {
+            System.out.println("نام مادر خود را وارد کنید :");
+            motherName = scanner.next();
+        } while (!Validation.isValidName(motherName));
+
+        do {
+            System.out.println("شماره شناسنامه خود را وارد کنید (متولدین بالای 1370 عدد صفر وارد کنید) :");
+            birthCertificateNumber = scanner.next();
+        } while (!Validation.isValidBirthCertificateNumber(birthCertificateNumber));
+        if (Objects.equals(birthCertificateNumber, "0"))
+            birthCertificateNumber = null;
+        do {
+            System.out.println("کد ملی خود را وارد کنید :");
+            nationalCode = scanner.next();
+        } while (!Validation.isValidIranianNationalCode(nationalCode));
+        do {
+            System.out.println("تاریخ تولد خود را وارد کنید (با این فرمت 04-05-1377 ");
+            birthDateStr = scanner.next();
+        } while (!Validation.isValidDate(birthDateStr));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate birthdate = LocalDate.parse(birthDateStr, formatter);
-        System.out.println("Enter student code :");
-        String studentCode = scanner.next();
-        System.out.println("Enter University Name :");
-        String universityName = scanner.next();
-        System.out.println("Enter University Type :(DOLATI,\n" +
-                "    GHEYRE_ENTEFAEI,\n" +
-                "    PARDIS,\n" +
-                "    ZARFIAT_MAZAD,\n" +
-                "    PAYAM_NOOR,\n" +
-                "    ELMI_KARBORDI,\n" +
-                "    AZAD)");
-        UniversityTypes universityType = UniversityTypes.valueOf(scanner.next().toUpperCase());
-        System.out.println("Enter Applied Term : MEHR,\n" +
-                "    BAHMAN");
-        AppliedTerm appliedTerm = AppliedTerm.valueOf(scanner.next().toUpperCase());
-        System.out.println("Enter Applied Year for (example 1403) :");
-        Integer appliedYear = scanner.nextInt();
-        System.out.println("Enter Edu stage(maghta tahsili) : KARDANI,\n" +
-                "    KARSHENASI_NAPEYVASTEH,\n" +
-                "    KARSHENASI_PEYVASTEH,\n" +
-                "    KARSHENASI_ARSHAD_PEYVASTEH,\n" +
-                "    KARSHENASI_ARSHAD_NAPEYVASTEH,\n" +
-                "    DOCTORAYE_HERFEYI,\n" +
-                "    DOCTORAYE_PEYVASTEH,\n" +
-                "    DOCTORAYE_TAKHASOSI_NAPEYVASTEH");
-        EduStages eduStage = EduStages.valueOf(scanner.next().toUpperCase());
+        while (birthdate.getYear() > LocalDate.now().getYear() ||
+                (birthdate.getYear() == LocalDate.now().getYear() && birthdate.getDayOfYear() > LocalDate.now().getDayOfYear())) {
+            System.out.println("تاریخ تولد نمی تواند بعد از امروز باشد");
+            do {
+                System.out.println("تاریخ تولد خود را وارد کنید (با این فرمت: 04-05-1377 )");
+                birthDateStr = scanner.next();
+            } while (!Validation.isValidDate(birthDateStr));
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            birthdate = LocalDate.parse(birthDateStr, formatter);
+        }
+        do {
+            System.out.println("کد دانشجویی خود را وارد کنید :");
+            studentCode = scanner.next();
+        } while (!Validation.isValidStudentCode(studentCode));
+        do {
+            System.out.println("نام دانشگاه خود را وارد کنید :");
+            universityName = scanner.next();
+        } while (!Validation.isValidName(universityName));
+        UniversityTypes universityType = getUniversityType();
+        AppliedTerm appliedTerm = getAppliedTerm();
+        System.out.println("سال ورود خود را به دانشگاه وارد کنید(مثلا 1403) :");
+        Integer appliedYear = getIntFromUser();
+        EduStages eduStage = getEduStage();
         String password = generatePassword();
-
-
         Student student = Student.builder()
                 .firstName(firstName)
                 .lastName(lastName)
@@ -229,14 +255,99 @@ public class Menu {
                 .build();
         calculateGraduationDate(student);
         if (student.getUniversityType() == UniversityTypes.DOLATI) {
-            System.out.println("Enter applied Type :   ROOZANEH,\n" +
-                    "    SHABANEH");
-            AppliedTypes appliedType = AppliedTypes.valueOf(scanner.next().toUpperCase());
+            AppliedTypes appliedType = getAppliedType();
             student.setAppliedType(appliedType);
         }
-
-
         return student;
+    }
+    public AppliedTypes getAppliedType(){
+        System.out.println("نوع قبولی خود را انتخاب کنید :");
+        System.out.println("    1-ROOZANEH\n" +
+                "    2-SHABANEH");
+        AppliedTypes appliedType=null;
+        do{
+            int number=getIntFromUser();
+            switch (number){
+                case 1->appliedType=AppliedTypes.ROOZANEH;
+                case 2->appliedType=AppliedTypes.SHABANEH;
+                default -> System.out.println("ورودی نا معتبر");
+            }
+        }while (appliedType==null);
+        return appliedType;
+    }
+
+    public AppliedTerm getAppliedTerm() {
+        System.out.println("ترم قبولی خود را انتخاب کنید :");
+        System.out.println("    1-MEHR,\n" +
+                "    2-BAHMAN");
+        int number = getIntFromUser();
+        AppliedTerm appliedTerm = null;
+        do {
+            switch (number) {
+                case 1 -> appliedTerm = AppliedTerm.MEHR;
+                case 2 -> appliedTerm = AppliedTerm.BAHMAN;
+                default -> System.out.println("ورودی نامعتبر");
+            }
+        } while (appliedTerm == null);
+        return appliedTerm;
+    }
+
+    public UniversityTypes getUniversityType() {
+
+        UniversityTypes universityType = null;
+        do {
+            System.out.println("نوع دانشگاه خود را انتخاب کنید :");
+            System.out.println("    1-DOLATI,\n" +
+                    "    2-GHEYRE_ENTEFAEI,\n" +
+                    "    3-PARDIS,\n" +
+                    "    4-ZARFIAT_MAZAD,\n" +
+                    "    5-PAYAM_NOOR,\n" +
+                    "    6-ELMI_KARBORDI,\n" +
+                    "    7-AZAD)");
+            int number = getIntFromUser();
+            switch (number) {
+                case 1 -> universityType = UniversityTypes.DOLATI;
+                case 2 -> universityType = UniversityTypes.GHEYRE_ENTEFAEI;
+                case 3 -> universityType = UniversityTypes.PARDIS;
+                case 4 -> universityType = UniversityTypes.ZARFIAT_MAZAD;
+                case 5 -> universityType = UniversityTypes.PAYAM_NOOR;
+                case 6 -> universityType = UniversityTypes.ELMI_KARBORDI;
+                case 7 -> universityType = UniversityTypes.AZAD;
+
+                default -> System.out.println("ورودی نامعتبر");
+            }
+
+        } while (universityType == null);
+        return universityType;
+    }
+
+    public EduStages getEduStage() {
+        System.out.println("مقطع تحصیلی خود را وارد کنید :");
+        System.out.println("    1-KARDANI,\n" +
+                "    2-KARSHENASI_NAPEYVASTEH,\n" +
+                "    3-KARSHENASI_PEYVASTEH,\n" +
+                "    4-KARSHENASI_ARSHAD_PEYVASTEH,\n" +
+                "    5-KARSHENASI_ARSHAD_NAPEYVASTEH,\n" +
+                "    6-DOCTORAYE_HERFEYI,\n" +
+                "    7-DOCTORAYE_PEYVASTEH,\n" +
+                "    8-DOCTORAYE_TAKHASOSI_NAPEYVASTEH");
+        EduStages eduStage = null;
+        do {
+            int number = getIntFromUser();
+            switch (number) {
+                case 1 -> eduStage = EduStages.KARDANI;
+                case 2 -> eduStage = EduStages.KARSHENASI_NAPEYVASTEH;
+                case 3 -> eduStage = EduStages.KARSHENASI_PEYVASTEH;
+                case 4 -> eduStage = EduStages.KARSHENASI_ARSHAD_PEYVASTEH;
+                case 5 -> eduStage = EduStages.KARSHENASI_ARSHAD_NAPEYVASTEH;
+                case 6 -> eduStage = EduStages.DOCTORAYE_HERFEYI;
+                case 7 -> eduStage = EduStages.DOCTORAYE_PEYVASTEH;
+                case 8 -> eduStage = EduStages.DOCTORAYE_TAKHASOSI_NAPEYVASTEH;
+                default -> System.out.println("ورودی نامعتبر");
+
+            }
+        } while (eduStage == null);
+        return eduStage;
     }
 
     public String generatePassword() {
@@ -269,9 +380,26 @@ public class Menu {
         }
         publicMenu();
     }
+    public Boolean isOpenGetLoan(){
+        if((nowForExample.getMonthValue()==8 && nowForExample.getDayOfMonth()<=7)
+        || (nowForExample.getMonthValue()==10 && nowForExample.getDayOfMonth()>=25)
+        || nowForExample.getMonthValue()==11 && nowForExample.getDayOfMonth()==1){
+            return true;
+        }else {
+            return false;
+        }
+    }
 
 
     public void signUpForLoan() {
+        if(!isOpenGetLoan()){
+            System.out.println("خطا ! پنجره  ثبت نام وام در این تاریخ غیر فعال است");
+            studentMenu();
+        }
+        if(isAfterGraduationDate()){
+            System.out.println("شما فارغ التحصیل شده اید");
+            studentMenu();
+        }
         Student student = studentService.findById(loggedInUserId);
         System.out.println("وام مورد نظر خود را انتخاب فرمائید :");
         System.out.println("1-وام تحصیلی");
@@ -582,9 +710,15 @@ public class Menu {
     }
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+    public Boolean isAfterGraduationDate(){
+        return nowForExample.toLocalDate().isAfter(studentService.findById(loggedInUserId).getExpireDate());
+    }
 
     public void seeAndPeyInstallments() {
+        if(!isAfterGraduationDate()){
+            System.out.println("بازپرداخت برای شما فعال نشده است . ");
+            studentMenu();
+        }
         System.out.println("برای مشاهده و پرداخت اقساط، وام مورد نظر خود را از لیست زیر انتخاب فرمائید :");
         List<Loan> loansByStudentId = loanService.findLoansByStudentId(loggedInUserId.intValue());
         System.out.println("تاریخ دریافت وام -ترم دریافت وام-مبلغ وام-نوع وام-آی دی");

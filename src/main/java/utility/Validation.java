@@ -2,36 +2,10 @@ package utility;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class Validation {
-    public static boolean isValidEmail(String email) {
 
-        String regex = "^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@"
-                + "[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$";;
-
-        Pattern pattern = Pattern.compile(regex);
-        if (email == null) {
-            return false;
-        }
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-    public static boolean isValidPassword(String password) {
-
-        String regex = "^(?=.*[0-9])"
-                + "(?=.*[a-z])(?=.*[A-Z])"
-                + "(?=.*[@#$%^&+=])"
-                + "(?=\\S+$).{8,20}$";
-
-        Pattern pattern = Pattern.compile(regex);
-        if (password == null) {
-            return false;
-        }
-
-        Matcher matcher = pattern.matcher(password);
-
-        return matcher.matches();
-    }
 
     public static boolean isValidUsername(String username) {
 
@@ -46,6 +20,7 @@ public class Validation {
 
         return matcher.matches();
     }
+
     public static boolean isValidWebsite(String website) {
 
         String regex = "/((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)/\n";
@@ -60,7 +35,21 @@ public class Validation {
 
         return matcher.matches();
     }
-    public static boolean isValidphoneNumber(String username) {
+
+    public static boolean isValidIranianNationalCode(String input) {
+        if (!input.matches("^\\d{10}$"))
+            return false;
+
+        int check = Integer.parseInt(input.substring(9, 10));
+
+        int sum = IntStream.range(0, 9)
+                .map(x -> Integer.parseInt(input.substring(x, x + 1)) * (10 - x))
+                .sum() % 11;
+
+        return sum < 2 ? check == sum : check + sum == 11;
+    }
+
+    public static boolean isValidphoneNumber(String phoneNumber) {
 
         String regex = "^[1-9]\\d{2}-\\d{3}-\\d{4}\n" +
                 "^\\(\\d{3}\\)\\s\\d{3}-\\d{4}\n" +
@@ -68,25 +57,75 @@ public class Validation {
                 "^[1-9]\\d{2}\\.\\d{3}\\.\\d{4}";
 
         Pattern pattern = Pattern.compile(regex);
-        if (username == null) {
+        if (phoneNumber == null) {
             return false;
         }
 
-        Matcher matcher = pattern.matcher(username);
+        Matcher matcher = pattern.matcher(phoneNumber);
 
         return matcher.matches();
     }
-    public static boolean isValidNationalCode(String username) {
 
-        String regex = "[0-9]{10}";
+    public static boolean isValidName(String name) {
+
+        String regex = "^[A-Z](?=.{1,29}$)[A-Za-z]*(?:\\h+[A-Z][A-Za-z]*)*$";
 
         Pattern pattern = Pattern.compile(regex);
-        if (username == null) {
+        if (name == null) {
             return false;
         }
 
-        Matcher matcher = pattern.matcher(username);
+        Matcher matcher = pattern.matcher(name);
 
         return matcher.matches();
     }
-}
+
+    public static boolean isValidBirthCertificateNumber(String birthCertificateNumber) {
+
+        String regex = "^[0-9]{1,5}$";
+
+        Pattern pattern = Pattern.compile(regex);
+        if (birthCertificateNumber == null) {
+            return false;
+        }
+
+        Matcher matcher = pattern.matcher(birthCertificateNumber);
+
+        return matcher.matches();
+    }
+
+    public static boolean isValidDate(String date) {
+
+        String regex = "^[1-4]\\d{3}-((0[1-6]-((3[0-1])|([1-2][0-9])|(0[1-9])))|((1[0-2]|(0[7-9]))-(30|([1-2][0-9])|(0[1-9]))))$";
+
+
+        Pattern pattern = Pattern.compile(regex);
+        if (date == null) {
+            return false;
+        }
+
+        Matcher matcher = pattern.matcher(date);
+
+        return matcher.matches();
+    }
+
+    public static boolean isValidStudentCode(String studentCode) {
+
+        String regex = "^\\d{10}$";
+
+
+        Pattern pattern = Pattern.compile(regex);
+        if (studentCode == null) {
+            return false;
+        }
+
+        Matcher matcher = pattern.matcher(studentCode);
+
+        return matcher.matches();
+    }
+
+    }
+
+//            (0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/((?:19|20)[0-9][0-9])
+
+

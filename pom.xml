@@ -15,6 +15,11 @@
             <version>1.18.30</version>
         </dependency>
         <dependency>
+            <groupId>me.moallemi</groupId>
+            <artifactId>persian-date</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>6.4.4.Final</version>
