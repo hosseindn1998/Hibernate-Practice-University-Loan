@@ -15,7 +15,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
     @Override
     public Boolean isExistEduLoanInTerm(Student student) {
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
-        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=0 and l.studentStage=studentStage and l.getLoanTerm=getLoanTerm" , Loan.class);
+        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=0 and l.studentStage= :studentStage and l.getLoanTerm= :getLoanTerm" , Loan.class);
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
         query.setParameter("getLoanTerm", student.getCurrentTerm());
@@ -24,7 +24,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
     @Override
     public Boolean isExistTuitionLoanInTerm(Student student) {
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
-        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=1 and l.studentStage=studentStage and l.getLoanTerm=getLoanTerm" , Loan.class);
+        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=1 and l.studentStage= :studentStage and l.getLoanTerm= :getLoanTerm" , Loan.class);
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
         query.setParameter("getLoanTerm", student.getCurrentTerm());
@@ -33,7 +33,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
     @Override
     public Boolean isExistHousingLoanInTerm(Student student) {
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
-        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=2 and l.studentStage=studentStage" , Loan.class);
+        Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=2 and l.studentStage= :studentStage" , Loan.class);
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
         return query.list()!= null;

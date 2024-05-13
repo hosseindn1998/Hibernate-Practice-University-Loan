@@ -34,9 +34,9 @@ public class Menu {
     private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService = ApplicationContext.getMorInfoForHousingLoanService();
 
     private final Scanner scanner = new Scanner(System.in);
+    //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
 //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
-//    private LocalDate nowForExample=LocalDate.of(1403,02,20);
-    private PersianDate nowForExample=PersianDate.of(1403,02,01);
+    private PersianDate nowForExample = PersianDate.of(1403, 02, 01);
 
 
     public void calculateLastTerm(int currentTermYear, int currentTermNumber) {
@@ -51,7 +51,6 @@ public class Menu {
 
 
     public void publicMenu() {
-
         System.out.println("به سامانه جامع امور دانشجویی(سجاد) خوش آمدید");
         System.out.println("1-ورود کاربر");
         System.out.println("2-ثبت نام کابر");
@@ -260,19 +259,20 @@ public class Menu {
         }
         return student;
     }
-    public AppliedTypes getAppliedType(){
+
+    public AppliedTypes getAppliedType() {
         System.out.println("نوع قبولی خود را انتخاب کنید :");
         System.out.println("    1-ROOZANEH\n" +
                 "    2-SHABANEH");
-        AppliedTypes appliedType=null;
-        do{
-            int number=getIntFromUser();
-            switch (number){
-                case 1->appliedType=AppliedTypes.ROOZANEH;
-                case 2->appliedType=AppliedTypes.SHABANEH;
+        AppliedTypes appliedType = null;
+        do {
+            int number = getIntFromUser();
+            switch (number) {
+                case 1 -> appliedType = AppliedTypes.ROOZANEH;
+                case 2 -> appliedType = AppliedTypes.SHABANEH;
                 default -> System.out.println("ورودی نا معتبر");
             }
-        }while (appliedType==null);
+        } while (appliedType == null);
         return appliedType;
     }
 
@@ -365,7 +365,7 @@ public class Menu {
             password[i] = passSymbols.charAt(rnd.nextInt(passSymbols.length()));
 
         }
-        return password.toString();
+        return password.toString().substring(1,9);
     }
 
     public void signUp() {
@@ -380,26 +380,27 @@ public class Menu {
         }
         publicMenu();
     }
-    public Boolean isOpenGetLoan(){
-        if((nowForExample.getMonthValue()==8 && nowForExample.getDayOfMonth()<=7)
-        || (nowForExample.getMonthValue()==10 && nowForExample.getDayOfMonth()>=25)
-        || nowForExample.getMonthValue()==11 && nowForExample.getDayOfMonth()==1){
+
+    public Boolean isOpenGetLoan() {
+        if ((nowForExample.getMonthValue() == 8 && nowForExample.getDayOfMonth() <= 7)
+                || (nowForExample.getMonthValue() == 10 && nowForExample.getDayOfMonth() >= 25)
+                || nowForExample.getMonthValue() == 11 && nowForExample.getDayOfMonth() == 1) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
 
     public void signUpForLoan() {
-        if(!isOpenGetLoan()){
-            System.out.println("خطا ! پنجره  ثبت نام وام در این تاریخ غیر فعال است");
-            studentMenu();
-        }
-        if(isAfterGraduationDate()){
-            System.out.println("شما فارغ التحصیل شده اید");
-            studentMenu();
-        }
+//        if (!isOpenGetLoan()) {
+//            System.out.println("خطا ! پنجره  ثبت نام وام در این تاریخ غیر فعال است");
+//            studentMenu();
+//        }
+//        if (isAfterGraduationDate()) {
+//            System.out.println("شما فارغ التحصیل شده اید");
+//            studentMenu();
+//        }
         Student student = studentService.findById(loggedInUserId);
         System.out.println("وام مورد نظر خود را انتخاب فرمائید :");
         System.out.println("1-وام تحصیلی");
@@ -427,7 +428,7 @@ public class Menu {
             }
 
             default -> {
-                System.out.println("Fake input,please Enter Number");
+                System.out.println("ورودی نامعتبر");
                 signUpForLoan();
             }
 
@@ -572,19 +573,8 @@ public class Menu {
 
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
-        System.out.println("شهر محل زندگی خود را وارد کنید");
-        System.out.println("   TEHRAN,\n" +
-                "    RASHT,\n" +
-                "    ESFAHAN,\n" +
-                "    TABRIZ,\n" +
-                "    SHIRAZ,\n" +
-                "    AHWAZ,\n" +
-                "    QOM,\n" +
-                "    MASHHAD,\n" +
-                "    KARAJ,\n" +
-                "    Other");
-        City city = City.valueOf(scanner.next().toUpperCase());
 
+        City city = getCityFromInput();
         if (city.equals(City.TEHRAN)) {
             amount = 32000000;
         } else if (city.equals(City.AHWAZ) || city.equals(City.RASHT)
@@ -595,13 +585,13 @@ public class Menu {
         } else {
             amount = 19500000;
         }
-        LocalDate getLoanDate = LocalDate.now();
+        PersianDate getLoanDate = nowForExample;
 
         Loan loan = Loan.builder()
                 .student(student)
                 .studentStage(student.getEduStage())
                 .amount(amount)
-                .getLoanDate(getLoanDate)
+                .getLoanDate(getLoanDate.toLocalDate())
                 .getLoanTerm(student.getCurrentTerm())
                 .studentCity(city)
                 .card(card)
@@ -633,6 +623,38 @@ public class Menu {
         }
 
         studentMenu();
+    }
+
+    public City getCityFromInput() {
+        System.out.println("شهر محل زندگی خود را وارد کنید");
+        System.out.println("   1-TEHRAN,\n" +
+                "    2-RASHT,\n" +
+                "    3-ESFAHAN,\n" +
+                "    4-TABRIZ,\n" +
+                "    5-SHIRAZ,\n" +
+                "    6-AHWAZ,\n" +
+                "    7-QOM,\n" +
+                "    8-MASHHAD,\n" +
+                "    9-KARAJ,\n" +
+                "    10-Other");
+        City city = null;
+        do {
+            int input = getIntFromUser();
+            switch (input) {
+                case 1 -> city = City.TEHRAN;
+                case 2 -> city = City.RASHT;
+                case 3 -> city = City.ESFAHAN;
+                case 4 -> city = City.TABRIZ;
+                case 5 -> city = City.SHIRAZ;
+                case 6 -> city = City.AHWAZ;
+                case 7 -> city = City.QOM;
+                case 8 -> city = City.MASHHAD;
+                case 9 -> city = City.KARAJ;
+                case 10 -> city = City.Other;
+                default -> System.out.println("ورودی نامعتبر");
+            }
+        } while (city == null);
+        return city;
     }
 
     public void tuitionLoan() {
@@ -709,13 +731,15 @@ public class Menu {
         }
     }
 
-///////////////////////////////////////////////////////////////////////////////////
-    public Boolean isAfterGraduationDate(){
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+    public Boolean isAfterGraduationDate() {
         return nowForExample.toLocalDate().isAfter(studentService.findById(loggedInUserId).getExpireDate());
     }
 
     public void seeAndPeyInstallments() {
-        if(!isAfterGraduationDate()){
+        if (!isAfterGraduationDate()) {
             System.out.println("بازپرداخت برای شما فعال نشده است . ");
             studentMenu();
         }
