@@ -2,28 +2,20 @@ package utility;
 
 import Model.*;
 import base.exception.NotFoundException;
-import lombok.NoArgsConstructor;
 import me.moallemi.persiandate.PersianDate;
-import org.hibernate.grammars.hql.HqlParser;
 import service.card.CardServiceImpl;
 import service.installment.InstallmentServiceImpl;
 import service.loan.LoanServiceImpl;
 import service.morInfo.MorInfoForHousingLoanServiceImpl;
 import service.student.StudentServiceImpl;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
-//@NoArgsConstructor
 public class Menu {
-    private String username = null;
-    private String password = null;
     private Long loggedInUserId;
-    private String loggedInUsername = null;
     private final StudentServiceImpl studentService = ApplicationContext.getStudentService();
     private final InstallmentServiceImpl installmentService = ApplicationContext.getInstallmentService();
     private final CardServiceImpl caredService = ApplicationContext.getCardService();
@@ -32,7 +24,7 @@ public class Menu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private PersianDate nowForExample = PersianDate.of(1397, 11, 01);
+    private final PersianDate nowForExample = PersianDate.of(1397, 11, 1);
 
 
     public void publicMenu() {
@@ -54,17 +46,16 @@ public class Menu {
     }
 
     public void signIn() {
+        String username;
         System.out.println("***   منوی ورود کابر   ***");
-
         do {
             System.out.println("لطفا نام کاربری خود را وارد کنید :");
             username = scanner.nextLine();
         } while (!Validation.isValidUsername(username));
         System.out.println("لطفا کلمه عبور خود را وارد کنید :");
-        password = scanner.nextLine();
+        String password = scanner.nextLine();
 
         if (studentService.authentication(username, password) != null) {
-            loggedInUsername = username;
             loggedInUserId = studentService.authentication(username, password).getId();
             System.out.println(studentService.findById(loggedInUserId).getFirstName());
             System.out.println("عزیز!  خوش آمدید");
@@ -78,7 +69,6 @@ public class Menu {
 
     public void logOut() {
         loggedInUserId = -1L;
-        loggedInUsername = null;
         System.out.println("خروج از حساب کاربری با موفقیت انجام شد");
         publicMenu();
     }
@@ -136,7 +126,7 @@ public class Menu {
     }
 
     public Integer getIntFromUser() {
-        Integer input = null;
+        int input;
         while (true) {
             try {
                 input = scanner.nextInt();
@@ -287,8 +277,9 @@ public class Menu {
 
     public AppliedTerm getAppliedTerm() {
         System.out.println("ترم قبولی خود را انتخاب کنید :");
-        System.out.println("    1-MEHR,\n" +
-                "    2-BAHMAN");
+        System.out.println("""
+                1-MEHR
+                2-BAHMAN""");
         int number = getIntFromUser();
         AppliedTerm appliedTerm = null;
         do {
@@ -306,13 +297,14 @@ public class Menu {
         UniversityTypes universityType = null;
         do {
             System.out.println("نوع دانشگاه خود را انتخاب کنید :");
-            System.out.println("    1-DOLATI,\n" +
-                    "    2-GHEYRE_ENTEFAEI,\n" +
-                    "    3-PARDIS,\n" +
-                    "    4-ZARFIAT_MAZAD,\n" +
-                    "    5-PAYAM_NOOR,\n" +
-                    "    6-ELMI_KARBORDI,\n" +
-                    "    7-AZAD)");
+            System.out.println("""
+                    1-DOLATI
+                    2-GHEYRE_ENTEFAEI
+                    3-PARDIS
+                    4-ZARFIAT_MAZAD
+                    5-PAYAM_NOOR
+                    6-ELMI_KARBORDI
+                    7-AZAD""");
             int number = getIntFromUser();
             switch (number) {
                 case 1 -> universityType = UniversityTypes.DOLATI;
@@ -332,14 +324,15 @@ public class Menu {
 
     public EduStages getEduStage() {
         System.out.println("مقطع تحصیلی خود را وارد کنید :");
-        System.out.println("    1-KARDANI,\n" +
-                "    2-KARSHENASI_NAPEYVASTEH,\n" +
-                "    3-KARSHENASI_PEYVASTEH,\n" +
-                "    4-KARSHENASI_ARSHAD_PEYVASTEH,\n" +
-                "    5-KARSHENASI_ARSHAD_NAPEYVASTEH,\n" +
-                "    6-DOCTORAYE_HERFEYI,\n" +
-                "    7-DOCTORAYE_PEYVASTEH,\n" +
-                "    8-DOCTORAYE_TAKHASOSI_NAPEYVASTEH");
+        System.out.println("""
+                1-KARDANI
+                2-KARSHENASI_NAPEYVASTEH
+                3-KARSHENASI_PEYVASTEH
+                4-KARSHENASI_ARSHAD_PEYVASTEH
+                5-KARSHENASI_ARSHAD_NAPEYVASTEH
+                6-DOCTORAYE_HERFEYI
+                7-DOCTORAYE_PEYVASTEH
+                8-DOCTORAYE_TAKHASOSI_NAPEYVASTEH""");
         EduStages eduStage = null;
         do {
             int number = getIntFromUser();
@@ -369,12 +362,11 @@ public class Menu {
         Random rnd = new Random();
 
         char[] password = new char[8];
-        int index = 0;
         for (int i = 0; i < 8; i++) {
             password[i] = passSymbols.charAt(rnd.nextInt(passSymbols.length()));
 
         }
-        return password.toString().substring(1, 9);
+        return Arrays.toString(password).substring(1, 9);
     }
 
     public void signUp() {
@@ -393,13 +385,9 @@ public class Menu {
     }
 
     public Boolean isOpenGetLoan() {
-        if ((nowForExample.getMonthValue() == 8 && nowForExample.getDayOfMonth() <= 7)
+        return (nowForExample.getMonthValue() == 8 && nowForExample.getDayOfMonth() <= 7)
                 || (nowForExample.getMonthValue() == 10 && nowForExample.getDayOfMonth() >= 25)
-                || nowForExample.getMonthValue() == 11 && nowForExample.getDayOfMonth() == 1) {
-            return true;
-        } else {
-            return false;
-        }
+                || nowForExample.getMonthValue() == 11 && nowForExample.getDayOfMonth() == 1;
     }
 
 
@@ -561,7 +549,7 @@ public class Menu {
     }
 
     public void educationLoan() {
-        Integer amount = 0;
+        int amount;
         Student student = studentService.findById(loggedInUserId);
         if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1900000;
@@ -643,7 +631,7 @@ public class Menu {
         Card card = getCardFromInput();
         caredService.saveOrUpdate(card);
 
-        Integer amount = 0;
+        int amount;
 
 
         City city = getCityFromInput();
@@ -654,13 +642,12 @@ public class Menu {
         } else {
             amount = 19500000;
         }
-        PersianDate getLoanDate = nowForExample;
 
         Loan loan = Loan.builder()
                 .student(student)
                 .studentStage(student.getEduStage())
                 .amount(amount)
-                .getLoanDate(getLoanDate.toLocalDate())
+                .getLoanDate(nowForExample.toLocalDate())
                 .getLoanTerm(student.getCurrentTerm())
                 .studentCity(city)
                 .card(card)
@@ -675,16 +662,17 @@ public class Menu {
 
     public City getCityFromInput() {
         System.out.println("شهر محل زندگی خود را وارد کنید");
-        System.out.println("   1-TEHRAN,\n" +
-                "    2-RASHT,\n" +
-                "    3-ESFAHAN,\n" +
-                "    4-TABRIZ,\n" +
-                "    5-SHIRAZ,\n" +
-                "    6-AHWAZ,\n" +
-                "    7-QOM,\n" +
-                "    8-MASHHAD,\n" +
-                "    9-KARAJ,\n" +
-                "    10-Other");
+        System.out.println("""
+                1-TEHRAN
+                2-RASHT
+                3-ESFAHAN
+                4-TABRIZ
+                5-SHIRAZ
+                6-AHWAZ
+                7-QOM
+                8-MASHHAD
+                9-KARAJ
+                10-Other""");
         City city = null;
         do {
             int input = getIntFromUser();
@@ -709,7 +697,7 @@ public class Menu {
         Card card = getCardFromInput();
         caredService.saveOrUpdate(card);
 
-        Integer amount = 0;
+        int amount ;
         Student student = studentService.findById(loggedInUserId);
         if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1300000;
@@ -753,6 +741,7 @@ public class Menu {
             student.setExpireDate(inputDate.plusYears(5));
         }
     }
+
     public Boolean isAfterGraduationDate() {
         LocalDate localDate = studentService.findById(loggedInUserId).getExpireDate();
         PersianDate nowPersianDate = PersianDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
