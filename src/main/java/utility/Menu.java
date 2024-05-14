@@ -162,6 +162,7 @@ public class Menu {
         String universityName;
         Integer appliedYear;
         Boolean isMarried = null;
+        Boolean liveInDorm = null;
 
         do {
             System.out.println("نام خود را وارد کنید(حرف اول بزرگ) :");
@@ -190,6 +191,15 @@ public class Menu {
                 default -> System.out.println("ورودی نامعتبر");
             }
         } while (isMarried == null);
+        do {
+            System.out.println("وضعیت سکونت: در خوابگاه دانشجویی زندگی می کنید؟ 1-بله 2-خیر");
+            int number = getIntFromUser();
+            switch (number) {
+                case 1 -> liveInDorm = Boolean.TRUE;
+                case 2 -> liveInDorm = Boolean.FALSE;
+                default -> System.out.println("ورودی نامعتبر");
+            }
+        } while (liveInDorm == null);
         do {
             System.out.println("شماره شناسنامه خود را وارد کنید (متولدین بالای 1370 عدد صفر وارد کنید) :");
             birthCertificateNumber = scanner.next();
@@ -238,6 +248,7 @@ public class Menu {
                 .fatherName(fatherName)
                 .motherName(motherName)
                 .isMarried(isMarried)
+                .liveInDorm(liveInDorm)
                 .birthCertificateNumber(birthCertificateNumber)
                 .nationalCode(nationalCode)
                 .birthDate(birthdate)
@@ -523,6 +534,32 @@ public class Menu {
                 .build();
     }
 
+    public void saveInstallment(Student student, Loan loan, Integer amount) {
+        long[] installments = new long[60];
+        int count;
+        double amountDB = amount * 1.04;
+        double instalmentPerYear = amountDB / 31;
+        for (int i = 0; i < 5; i++) {
+            count = (int) Math.pow(2, i);
+            for (int j = 0; j < 12; j++) {
+                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
+
+            }
+        }
+
+        for (int i = 0; i < 60; i++) {
+            Installment installment = Installment.builder()
+                    .paymentStageNum(i + 1)
+                    .dueDate(student.getExpireDate().plusMonths(i + 1))
+                    .amount(Math.toIntExact(installments[i]))
+                    .payedStatus(Boolean.FALSE)
+                    .loan(loan)
+                    .build();
+            installmentService.saveOrUpdate(installment);
+
+        }
+    }
+
     public void educationLoan() {
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
@@ -555,30 +592,7 @@ public class Menu {
                 .build();
         loanService.saveOrUpdate(loan);
 
-
-        long[] installments = new long[60];
-        int count;
-        double amountDB = amount * 1.04;
-        double instalmentPerYear = amountDB / 31;
-        for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2, i);
-            for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
-
-            }
-        }
-
-        for (int i = 0; i < 60; i++) {
-            Installment installment = Installment.builder()
-                    .paymentStageNum(i + 1)
-                    .dueDate(student.getExpireDate().plusMonths(i + 1))
-                    .amount(Math.toIntExact(installments[i]))
-                    .payedStatus(Boolean.FALSE)
-                    .loan(loan)
-                    .build();
-            installmentService.saveOrUpdate(installment);
-
-        }
+        saveInstallment(student, loan, amount);
         studentMenu();
     }
 
@@ -619,8 +633,12 @@ public class Menu {
 
     public void housingLoan() {
         Student student = studentService.findById(loggedInUserId);
-        if(student.getIsMarried()==Boolean.FALSE){
+        if (student.getIsMarried() == Boolean.FALSE) {
             System.out.println("این وام مخصوص افراد متاهل است لذا واجد شرایط دریافت این وام نیستید.");
+            studentMenu();
+        }
+        if (student.getLiveInDorm() == Boolean.TRUE) {
+            System.out.println("این وام به افراد خوابگاهی تعلق نمی گیرد");
             studentMenu();
         }
         MorInfoForHousingLoan morInfoForHousingLoan = getMorInfoForHousingLoan();
@@ -661,32 +679,7 @@ public class Menu {
                 .loanType(LoanTypes.HOUSING)
                 .build();
         loanService.saveOrUpdate(loan);
-
-
-        long[] installments = new long[60];
-        int count;
-        double amountDB = amount * 1.04;
-        double instalmentPerYear = amountDB / 31;
-        for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2, i);
-            for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
-
-            }
-        }
-
-        for (int i = 0; i < 60; i++) {
-            Installment installment = Installment.builder()
-                    .paymentStageNum(i + 1)
-                    .dueDate(student.getExpireDate().plusMonths(i + 1))
-                    .amount(Math.toIntExact(installments[i]))
-                    .payedStatus(Boolean.FALSE)
-                    .loan(loan)
-                    .build();
-            installmentService.saveOrUpdate(installment);
-
-        }
-
+        saveInstallment(student, loan, amount);
         studentMenu();
     }
 
@@ -753,34 +746,9 @@ public class Menu {
                 .card(card)
                 .build();
         loanService.saveOrUpdate(loan);
-
-        //////////////////////////////////
-        long[] installments = new long[60];
-        int count;
-        double amountDB = amount * 1.04;
-        double instalmentPerYear = amountDB / 31;
-        for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2, i);
-            for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
-
-            }
-        }
-
-        for (int i = 0; i < 60; i++) {
-            Installment installment = Installment.builder()
-                    .paymentStageNum(i + 1)
-                    .dueDate(student.getExpireDate().plusMonths(i + 1))
-                    .amount(Math.toIntExact(installments[i]))
-                    .payedStatus(Boolean.FALSE)
-                    .loan(loan)
-                    .build();
-            installmentService.saveOrUpdate(installment);
-
-        }
+        saveInstallment(student, loan, amount);
         studentMenu();
     }
-
 
     public void calculateGraduationDate(Student student) {
         LocalDate inputDate;

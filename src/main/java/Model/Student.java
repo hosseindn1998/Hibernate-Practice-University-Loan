@@ -21,12 +21,13 @@ import java.util.List;
 @Builder
 @ToString
 @Table(name = "student")
-public class Student extends BaseEntity<Long>{
+public class Student extends BaseEntity<Long> {
     String firstName;
     String lastName;
     String fatherName;
     String motherName;
     Boolean isMarried;
+    Boolean liveInDorm;
     String birthCertificateNumber;
     @Pattern(regexp = "^[0-9]{10}$")
     String nationalCode;
@@ -49,7 +50,7 @@ public class Student extends BaseEntity<Long>{
     String password;
     @ElementCollection
     @ToString.Exclude
-    @OneToMany(mappedBy = "student",cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.MERGE)
     List<Loan> loan;
 
 
