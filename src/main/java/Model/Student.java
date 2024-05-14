@@ -26,6 +26,7 @@ public class Student extends BaseEntity<Long>{
     String lastName;
     String fatherName;
     String motherName;
+    Boolean isMarried;
     String birthCertificateNumber;
     @Pattern(regexp = "^[0-9]{10}$")
     String nationalCode;

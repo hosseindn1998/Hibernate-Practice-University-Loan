@@ -35,7 +35,6 @@ public class Menu {
     private PersianDate nowForExample = PersianDate.of(1397, 11, 01);
 
 
-
     public void publicMenu() {
         System.out.println("به سامانه جامع امور دانشجویی(سجاد) خوش آمدید");
         System.out.println("1-ورود کاربر");
@@ -162,6 +161,7 @@ public class Menu {
         String studentCode;
         String universityName;
         Integer appliedYear;
+        Boolean isMarried = null;
 
         do {
             System.out.println("نام خود را وارد کنید(حرف اول بزرگ) :");
@@ -181,7 +181,15 @@ public class Menu {
             System.out.println("نام مادر خود را وارد کنید :");
             motherName = scanner.next();
         } while (!Validation.isValidName(motherName));
-
+        do {
+            System.out.println("وضعیت تاهل : متاهل هستید؟ 1-بله 2-خیر");
+            int number = getIntFromUser();
+            switch (number) {
+                case 1 -> isMarried = Boolean.TRUE;
+                case 2 -> isMarried = Boolean.FALSE;
+                default -> System.out.println("ورودی نامعتبر");
+            }
+        } while (isMarried == null);
         do {
             System.out.println("شماره شناسنامه خود را وارد کنید (متولدین بالای 1370 عدد صفر وارد کنید) :");
             birthCertificateNumber = scanner.next();
@@ -229,6 +237,7 @@ public class Menu {
                 .lastName(lastName)
                 .fatherName(fatherName)
                 .motherName(motherName)
+                .isMarried(isMarried)
                 .birthCertificateNumber(birthCertificateNumber)
                 .nationalCode(nationalCode)
                 .birthDate(birthdate)
@@ -431,7 +440,7 @@ public class Menu {
         String number;
         do {
             number = scanner.next();
-            if(!Validation.isValidFourCardNumber(number))
+            if (!Validation.isValidFourCardNumber(number))
                 System.out.println("لطفا در وارد کردن اعداد دقت کنید");
         } while (!Validation.isValidFourCardNumber(number));
         return number;
@@ -547,15 +556,14 @@ public class Menu {
         loanService.saveOrUpdate(loan);
 
 
-
         long[] installments = new long[60];
         int count;
-        double amountDB=amount*1.04;
-        double instalmentPerYear=amountDB/31;
+        double amountDB = amount * 1.04;
+        double instalmentPerYear = amountDB / 31;
         for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2,i);
+            count = (int) Math.pow(2, i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
 
             }
         }
@@ -610,6 +618,11 @@ public class Menu {
     }
 
     public void housingLoan() {
+        Student student = studentService.findById(loggedInUserId);
+        if(student.getIsMarried()==Boolean.FALSE){
+            System.out.println("این وام مخصوص افراد متاهل است لذا واجد شرایط دریافت این وام نیستید.");
+            studentMenu();
+        }
         MorInfoForHousingLoan morInfoForHousingLoan = getMorInfoForHousingLoan();
         if (loanService.wifeHousingLoanCheck(morInfoForHousingLoan.getWifeNationalCode())) {
             System.out.println("همسر شما قبلا از این وام استفاده کرده لذا شما واجد شرایط نمی باشید");
@@ -620,7 +633,7 @@ public class Menu {
         caredService.saveOrUpdate(card);
 
         Integer amount = 0;
-        Student student = studentService.findById(loggedInUserId);
+
 
         City city = getCityFromInput();
         if (city.equals(City.TEHRAN)) {
@@ -652,12 +665,12 @@ public class Menu {
 
         long[] installments = new long[60];
         int count;
-        double amountDB=amount*1.04;
-        double instalmentPerYear=amountDB/31;
+        double amountDB = amount * 1.04;
+        double instalmentPerYear = amountDB / 31;
         for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2,i);
+            count = (int) Math.pow(2, i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
 
             }
         }
@@ -744,12 +757,12 @@ public class Menu {
         //////////////////////////////////
         long[] installments = new long[60];
         int count;
-        double amountDB=amount*1.04;
-        double instalmentPerYear=amountDB/31;
+        double amountDB = amount * 1.04;
+        double instalmentPerYear = amountDB / 31;
         for (int i = 0; i < 5; i++) {
-            count = (int) Math.pow(2,i);
+            count = (int) Math.pow(2, i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+                installments[12 * i + j] = Math.round(count * instalmentPerYear / 12);
 
             }
         }
@@ -788,11 +801,9 @@ public class Menu {
     }
 
 
-
-
     public Boolean isAfterGraduationDate() {
-        LocalDate localDate=studentService.findById(loggedInUserId).getExpireDate();
-        PersianDate nowPersianDate=PersianDate.of(localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
+        LocalDate localDate = studentService.findById(loggedInUserId).getExpireDate();
+        PersianDate nowPersianDate = PersianDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
         return nowForExample.toLocalDate().isAfter(nowPersianDate.toLocalDate());
     }
 
@@ -803,7 +814,7 @@ public class Menu {
         }
         System.out.println("برای مشاهده و پرداخت اقساط، وام مورد نظر خود را از لیست زیر انتخاب فرمائید :");
         List<Loan> loansByStudentId = loanService.findLoansByStudentId(loggedInUserId.intValue());
-        if(loansByStudentId.isEmpty()){
+        if (loansByStudentId.isEmpty()) {
             System.out.println("هیچ وامی دریافت نکرده اید");
             studentMenu();
         }
@@ -837,19 +848,19 @@ public class Menu {
 
     public void seeNotPayedInstallments(Integer loanId) {
         List<Installment> notPayedByLoanId = installmentService.findNotPayedByLoanId(loanId);
-        if(notPayedByLoanId.isEmpty()){
+        if (notPayedByLoanId.isEmpty()) {
             System.out.println("وامی با این شماره یافت نشد لطفا در وارد کردن عدد دقت فرمایید");
             seeAndPeyInstallments();
         }
         System.out.println(" تاریخ سررسید - مبلغ قسط - مرحله پرداخت -شماره اقساط");
         for (Installment i : notPayedByLoanId) {
-            System.out.println(i.getId()+" - "+ i.getPaymentStageNum() + " - " + i.getAmount() + " - " + i.getDueDate());
+            System.out.println(i.getId() + " - " + i.getPaymentStageNum() + " - " + i.getAmount() + " - " + i.getDueDate());
         }
     }
 
     public void seePayedInstallments(Integer loanId) {
         List<Installment> payedByLoanId = installmentService.findPayedByLoanId(loanId);
-        if(payedByLoanId.isEmpty()){
+        if (payedByLoanId.isEmpty()) {
             System.out.println("قسط پرداخت شده ای با این شماره وام یافت نشد لطفا درصورت اطمینان از پرداخت، شماره وام وارد شده را چک کنید");
             seeAndPeyInstallments();
         }
