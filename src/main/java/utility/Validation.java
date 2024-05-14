@@ -21,20 +21,6 @@ public class Validation {
         return matcher.matches();
     }
 
-    public static boolean isValidWebsite(String website) {
-
-        String regex = "/((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)/\n";
-
-
-        Pattern pattern = Pattern.compile(regex);
-        if (website == null) {
-            return false;
-        }
-
-        Matcher matcher = pattern.matcher(website);
-
-        return matcher.matches();
-    }
 
     public static boolean isValidIranianNationalCode(String input) {
         if (!input.matches("^\\d{10}$"))
@@ -49,22 +35,6 @@ public class Validation {
         return sum < 2 ? check == sum : check + sum == 11;
     }
 
-    public static boolean isValidphoneNumber(String phoneNumber) {
-
-        String regex = "^[1-9]\\d{2}-\\d{3}-\\d{4}\n" +
-                "^\\(\\d{3}\\)\\s\\d{3}-\\d{4}\n" +
-                "^[1-9]\\d{2}\\s\\d{3}\\s\\d{4}\n" +
-                "^[1-9]\\d{2}\\.\\d{3}\\.\\d{4}";
-
-        Pattern pattern = Pattern.compile(regex);
-        if (phoneNumber == null) {
-            return false;
-        }
-
-        Matcher matcher = pattern.matcher(phoneNumber);
-
-        return matcher.matches();
-    }
 
     public static boolean isValidName(String name) {
 
@@ -90,6 +60,32 @@ public class Validation {
         }
 
         Matcher matcher = pattern.matcher(birthCertificateNumber);
+
+        return matcher.matches();
+    }
+    public static boolean isValidFourCardNumber(String Number) {
+
+        String regex = "^[0-9]{4}$";
+
+        Pattern pattern = Pattern.compile(regex);
+        if (Number == null) {
+            return false;
+        }
+
+        Matcher matcher = pattern.matcher(Number);
+
+        return matcher.matches();
+    }
+    public static boolean isValidCvv2Number(String Cvv2Number) {
+
+        String regex = "^[0-9]{3,4}$";
+
+        Pattern pattern = Pattern.compile(regex);
+        if (Cvv2Number == null) {
+            return false;
+        }
+
+        Matcher matcher = pattern.matcher(Cvv2Number);
 
         return matcher.matches();
     }
@@ -123,9 +119,33 @@ public class Validation {
 
         return matcher.matches();
     }
+    public static boolean isValidYearCard(String number) {
 
+        String regex = "^\\d{2}$";
+
+        Pattern pattern = Pattern.compile(regex);
+        if (number == null) {
+            return false;
+        }
+        Matcher matcher = pattern.matcher(number);
+
+        return matcher.matches();
+    }
+    public static boolean isValidMonthCard(String number) {
+
+        String regex = "^\\d{2}$";
+
+        Pattern pattern = Pattern.compile(regex);
+        if (number == null) {
+            return false;
+        }
+        Matcher matcher = pattern.matcher(number);
+        if(matcher.matches()){
+            return Integer.parseInt(number) >= 1 && Integer.parseInt(number) <= 12;
+        }
+        return matcher.matches();
     }
 
-//            (0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/((?:19|20)[0-9][0-9])
+}
 
 

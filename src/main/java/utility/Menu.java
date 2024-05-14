@@ -1,6 +1,7 @@
 package utility;
 
 import Model.*;
+import base.exception.NotFoundException;
 import lombok.NoArgsConstructor;
 import me.moallemi.persiandate.PersianDate;
 import org.hibernate.grammars.hql.HqlParser;
@@ -36,7 +37,7 @@ public class Menu {
     private final Scanner scanner = new Scanner(System.in);
     //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
 //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
-    private PersianDate nowForExample = PersianDate.of(1402, 11, 01);
+    private PersianDate nowForExample = PersianDate.of(1397, 11, 01);
 
 
     public void calculateLastTerm(int currentTermYear, int currentTermNumber) {
@@ -232,10 +233,10 @@ public class Menu {
         } while (!Validation.isValidName(universityName));
         UniversityTypes universityType = getUniversityType();
         AppliedTerm appliedTerm = getAppliedTerm();
-        do{
+        do {
             System.out.println("سال ورود خود را به دانشگاه وارد کنید (مثلا 1403) :");
             appliedYear = getIntFromUser();
-        }while (!(appliedYear>1357 && appliedYear<= nowForExample.getYear()));
+        } while (!(appliedYear > 1357 && appliedYear <= nowForExample.getYear()));
         EduStages eduStage = getEduStage();
         String password = generatePassword();
         Student student = Student.builder()
@@ -380,7 +381,7 @@ public class Menu {
             System.out.println(student.getUsername());
             System.out.println("کلمه عبور :");
             System.out.println(student.getPassword());
-        }else{
+        } else {
             System.out.println("شما قبلا ثبت نام کرده اید.لطفا با نام کاربری و رمز عبور خود وارد شوید");
         }
         publicMenu();
@@ -398,14 +399,14 @@ public class Menu {
 
 
     public void signUpForLoan() {
-//        if (!isOpenGetLoan()) {
-//            System.out.println("خطا ! پنجره  ثبت نام وام در این تاریخ غیر فعال است");
-//            studentMenu();
-//        }
-//        if (isAfterGraduationDate()) {
-//            System.out.println("شما فارغ التحصیل شده اید");
-//            studentMenu();
-//        }
+        if (!isOpenGetLoan()) {
+            System.out.println("خطا ! پنجره  ثبت نام وام در این تاریخ غیر فعال است");
+            studentMenu();
+        }
+        if (isAfterGraduationDate()) {
+            System.out.println("شما فارغ التحصیل شده اید");
+            studentMenu();
+        }
         Student student = studentService.findById(loggedInUserId);
         System.out.println("وام مورد نظر خود را انتخاب فرمائید :");
         System.out.println("1-وام تحصیلی");
@@ -441,23 +442,83 @@ public class Menu {
         studentMenu();
     }
 
-    public Card getCardFromInput() {
-        System.out.println("چهار شماره اول را وارد کنید (****) **** **** **** :");
-        String fourNumber1 = scanner.next();
-        System.out.println("Enter 2th four Card Number **** (****) **** **** :");
-        String fourNumber2 = scanner.next();
-        System.out.println("Enter 3th four Card Number **** **** (****) **** :");
-        String fourNumber3 = scanner.next();
-        System.out.println("Enter last four Card Number **** **** **** (****) :");
-        String fourNumber4 = scanner.next();
-        System.out.println("Enter cvv2 :");
-        String cvv2 = scanner.next();
-        System.out.println("Enter Year of expire :");
-        String expireYear = scanner.next();
-        System.out.println("Enter Month of expire :");
-        String expireMonth = scanner.next();
+    public String getFourNumberFromInput() {
+        String number;
+        do {
+            number = scanner.next();
+            if(!Validation.isValidFourCardNumber(number))
+                System.out.println("لطفا در وارد کردن اعداد دقت کنید");
+        } while (!Validation.isValidFourCardNumber(number));
+        return number;
+    }
 
-        Card card = Card.builder()
+    public String getCvv2NumberFromInput() {
+        String number;
+        do {
+            System.out.println("را وارد کنید cvv2 :");
+            number = scanner.next();
+        } while (!Validation.isValidCvv2Number(number));
+        return number;
+    }
+
+    public String getExpireYearFromInput() {
+        String number;
+        do {
+            System.out.println("سال را به صورت عدد دورقمی وارد کنید مثلا (01) :");
+            number = scanner.next();
+        } while (!Validation.isValidYearCard(number));
+        return number;
+    }
+
+    public String getExpireMonthFromInput() {
+        String number;
+        do {
+            System.out.println("ماه را به صورت عدد دورقمی وارد کنید مثلا (01) :");
+            number = scanner.next();
+        } while (!Validation.isValidMonthCard(number));
+        return number;
+    }
+
+    public Card getCardFromInput() {
+        String fourNumber1;
+        String fourNumber2;
+        String fourNumber3;
+        String fourNumber4;
+        String cvv2;
+        String expireYear;
+        String expireMonth;
+        List<String> validCards = List.of("603799", "589463", "627353", "628023");
+        do {
+            do {
+                System.out.println("چهار شماره اول را وارد کنید");
+                System.out.println("(****) **** **** **** :");
+                fourNumber1 = getFourNumberFromInput();
+                System.out.println("چهار شماره دوم را وارد کنید");
+                System.out.println("**** (****) **** **** :");
+                fourNumber2 = getFourNumberFromInput();
+                if (!validCards.contains(fourNumber1.concat(fourNumber2).substring(0, 6)))
+                    System.out.println("کارت متعلق به بانک های ملی مسکن تجارت یا رفاه نیست لطفا مشخصات کارت مربوط به بانک های مذکور را وارد کنید ");
+            } while (!validCards.contains(fourNumber1.concat(fourNumber2).substring(0, 6)));
+            System.out.println("چهار شماره سوم را وارد کنید");
+            System.out.println("**** **** (****) **** :");
+            fourNumber3 = getFourNumberFromInput();
+            System.out.println("چهار شماره آخر را وارد کنید");
+            System.out.println(" **** **** **** (****) :");
+            fourNumber4 = getFourNumberFromInput();
+            cvv2 = getCvv2NumberFromInput();
+            System.out.println("سال انقضای کارت را وارد کنید :");
+            expireYear = getExpireYearFromInput();
+            System.out.println("ماه انقضای کارت را وارد کنید :");
+            expireMonth = getExpireMonthFromInput();
+            if (PersianDate.of(Integer.parseInt("14".concat(expireYear)), Integer.parseInt(expireMonth), 1).toLocalDate()
+                    .isBefore(nowForExample.toLocalDate())) {
+                System.out.println("کارت شما منقضی شده است لطفا کارت دیگری وارد کنید");
+            }
+        } while (!PersianDate.of(Integer.parseInt(expireYear), Integer.parseInt(expireMonth), 1).toLocalDate()
+                .isBefore(nowForExample.toLocalDate()));
+
+
+        return Card.builder()
                 .fourNumber1(fourNumber1)
                 .fourNumber2(fourNumber2)
                 .fourNumber3(fourNumber3)
@@ -466,13 +527,6 @@ public class Menu {
                 .expireYear(expireYear)
                 .expireMonth(expireMonth)
                 .build();
-        List<String> validCards = List.of("6037", "5894", "6273", "6280");
-
-        while (!validCards.contains(card.getFourNumber1())) {
-            System.out.println("کارت متعلق به بانک های ملی مسکن تجارت یا رفاه نیست لطفا مشخصات کارت مربوط به بانک های مذکور را وارد کنید ");
-            card = getCardFromInput();
-        }
-        return card;
     }
 
     public void educationLoan() {
@@ -511,14 +565,22 @@ public class Menu {
         //////////////////////////////////
         long[] installments = new long[60];
         int count;
+        Double amountDB=amount*1.04;
+        Double instalmentPerYear=amountDB/31;
+        double baghimande=amountDB;
+        double sum=0;
         for (int i = 0; i < 5; i++) {
+
 //            double amountDouble=amount*1.04;
 //            int baghimande = (5 - i) / 5 * amount; //جهت قسط با سود سالیانه از مبلغ باقی مانده
+            count = 2 ^ i;
             for (int j = 0; j < 12; j++) {
-//                installments[12 * i + j] = Math.round(((2 * i + 1) * 0.04 * amount / 12) + 0.04 * amount /60);
-                count=2^i;
-                installments[12 * i + j] = Math.round (amount*1.04*count /(31*12));
+                installments[12 * i + j] = (long) (Math.round(count*instalmentPerYear/12) + 0.04 * baghimande /60);
+
+//                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+                sum=+installments[12 * i + j];
             }
+            baghimande=amountDB-12*sum;
         }
 
         for (int i = 0; i < 60; i++) {
@@ -744,7 +806,9 @@ public class Menu {
 
 
     public Boolean isAfterGraduationDate() {
-        return nowForExample.toLocalDate().isAfter(studentService.findById(loggedInUserId).getExpireDate());
+        LocalDate localDate=studentService.findById(loggedInUserId).getExpireDate();
+        PersianDate nowPersianDate=PersianDate.of(localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
+        return nowForExample.toLocalDate().isAfter(nowPersianDate.toLocalDate());
     }
 
     public void seeAndPeyInstallments() {
@@ -754,13 +818,17 @@ public class Menu {
         }
         System.out.println("برای مشاهده و پرداخت اقساط، وام مورد نظر خود را از لیست زیر انتخاب فرمائید :");
         List<Loan> loansByStudentId = loanService.findLoansByStudentId(loggedInUserId.intValue());
+        if(loansByStudentId.isEmpty()){
+            System.out.println("هیچ وامی دریافت نکرده اید");
+            studentMenu();
+        }
         System.out.println("تاریخ دریافت وام -ترم دریافت وام-مبلغ وام-نوع وام-آی دی");
         for (Loan l : loansByStudentId) {
             System.out.print(l.getId() + "-" + l.getLoanType() + " " + l.getAmount() + " " + l.getGetLoanTerm()
-                    + " " + l.getGetLoanDate());
+                    + " " + PersianDate.ofLocalDate(l.getGetLoanDate()));
             System.out.println();
         }
-        System.out.println("لطفا فقط آی دی وام را وارد کنید");
+        System.out.println("لطفا فقط شماره وام را وارد کنید");
         Integer loanId = getIntFromUser();
         System.out.println("1-مشاهده اقساط پرداخت شده ");
         System.out.println("2-مشاهده اقساط پرداخت نشده ");
@@ -774,7 +842,7 @@ public class Menu {
             case 3 -> payInstallment(loanId);
 
             default -> {
-                System.out.println("Fake input,please Enter Number");
+                System.out.println("ورودی نامعتبر");
                 signUpForLoan();
             }
 
@@ -784,47 +852,54 @@ public class Menu {
 
     public void seeNotPayedInstallments(Integer loanId) {
         List<Installment> notPayedByLoanId = installmentService.findNotPayedByLoanId(loanId);
-        for (Installment i : notPayedByLoanId) {
-            System.out.println(i.getPaymentStageNum() + " - " + i.getAmount() + " " + i.getDueDate());
-
+        if(notPayedByLoanId.isEmpty()){
+            System.out.println("وامی با این شماره یافت نشد لطفا در وارد کردن عدد دقت فرمایید");
+            seeAndPeyInstallments();
         }
-        seeAndPeyInstallments();
+        System.out.println(" تاریخ سررسید - مبلغ قسط - مرحله پرداخت -شماره اقساط");
+        for (Installment i : notPayedByLoanId) {
+            System.out.println(i.getId()+" - "+ i.getPaymentStageNum() + " - " + i.getAmount() + " - " + i.getDueDate());
+        }
     }
 
     public void seePayedInstallments(Integer loanId) {
         List<Installment> payedByLoanId = installmentService.findPayedByLoanId(loanId);
+        if(payedByLoanId.isEmpty()){
+            System.out.println("قسط پرداخت شده ای با این شماره وام یافت نشد لطفا درصورت اطمینان از پرداخت، شماره وام وارد شده را چک کنید");
+            seeAndPeyInstallments();
+        }
         for (Installment i : payedByLoanId) {
             System.out.println(i.getPaymentStageNum() + " - " + i.getPayDate());
         }
-        seeAndPeyInstallments();
     }
 
     public void payInstallment(Integer loanId) {
-//        seeNotPayedInstallments(loanId);
+        seeNotPayedInstallments(loanId);
         System.out.println("لطفا شماره قسط مورد نظر خود را برای پرداخت وارد کنید");
         Integer installmentId = getIntFromUser();
-        Installment installment = installmentService.findById(Long.valueOf(installmentId.toString()));
-        Card card = getCardFromInput();
-        Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
-        if (
-                fetchCard.getFourNumber1().equals(card.getFourNumber1()) &&
-                        fetchCard.getFourNumber2().equals(card.getFourNumber2()) &&
-                        fetchCard.getFourNumber3().equals(card.getFourNumber3()) &&
-                        fetchCard.getFourNumber4().equals(card.getFourNumber4()) &&
-                        fetchCard.getCvv2().equals(card.getCvv2()) &&
-                        fetchCard.getExpireYear().equals(card.getExpireYear()) &&
-                        fetchCard.getExpireMonth().equals(card.getExpireMonth())
-        ) {
-            installment.setPayedStatus(Boolean.TRUE);
-            installmentService.saveOrUpdate(installment);
-            System.out.println("پرداخت با موفقیت انجام شد");
-            seeAndPeyInstallments();
-        } else {
-            System.out.println("شماره کارت نامعتبر است لطفا کارت مربوط به این وام را وارد کنید");
-            seeAndPeyInstallments();
+        try {
+            Installment installment = installmentService.findById(Long.valueOf(installmentId.toString()));
+            Card card = getCardFromInput();
+            Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
+            if (
+                    fetchCard.getFourNumber1().equals(card.getFourNumber1()) &&
+                            fetchCard.getFourNumber2().equals(card.getFourNumber2()) &&
+                            fetchCard.getFourNumber3().equals(card.getFourNumber3()) &&
+                            fetchCard.getFourNumber4().equals(card.getFourNumber4()) &&
+                            fetchCard.getCvv2().equals(card.getCvv2()) &&
+                            fetchCard.getExpireYear().equals(card.getExpireYear()) &&
+                            fetchCard.getExpireMonth().equals(card.getExpireMonth())
+            ) {
+                installment.setPayedStatus(Boolean.TRUE);
+                installmentService.saveOrUpdate(installment);
+                System.out.println("پرداخت با موفقیت انجام شد");
+            } else {
+                System.out.println("شماره کارت یا اطلاعات آن نامعتبر است لطفا کارت مربوط به این وام را به دقت وارد کنید");
+            }
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
         }
-
+        seeAndPeyInstallments();
     }
-
 }
 
