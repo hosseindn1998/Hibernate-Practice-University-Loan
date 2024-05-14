@@ -563,14 +563,9 @@ public class Menu {
     public void educationLoan() {
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
-        if (student.getEduStage().equals(EduStages.KARDANI) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_NAPEYVASTEH) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_PEYVASTEH)) {
+        if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1900000;
-        } else if (student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_PEYVASTEH) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_NAPEYVASTEH) ||
-                student.getEduStage().equals(EduStages.DOCTORAYE_PEYVASTEH) ||
-                student.getEduStage().equals(EduStages.DOCTORAYE_HERFEYI)) {
+        } else if (EduStages.level2.contains(student.getEduStage())) {
             amount = 2250000;
         } else {
             amount = 2600000;
@@ -578,8 +573,6 @@ public class Menu {
         LocalDate getLoanDate = LocalDate.now();
         Card card = getCardFromInput();
         caredService.saveOrUpdate(card);
-
-
         Loan loan = Loan.builder()
                 .student(student)
                 .studentStage(student.getEduStage())
@@ -654,12 +647,9 @@ public class Menu {
 
 
         City city = getCityFromInput();
-        if (city.equals(City.TEHRAN)) {
+        if (City.level1.contains(city)) {
             amount = 32000000;
-        } else if (city.equals(City.AHWAZ) || city.equals(City.RASHT)
-                || city.equals(City.TABRIZ) || city.equals(City.SHIRAZ)
-                || city.equals(City.ESFAHAN) || city.equals(City.QOM)
-                || city.equals(City.MASHHAD) || city.equals(City.KARAJ)) {
+        } else if (City.level2.contains(city)) {
             amount = 26000000;
         } else {
             amount = 19500000;
@@ -721,20 +711,14 @@ public class Menu {
 
         Integer amount = 0;
         Student student = studentService.findById(loggedInUserId);
-        if (student.getEduStage().equals(EduStages.KARDANI) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_NAPEYVASTEH) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_PEYVASTEH)) {
+        if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1300000;
-        } else if (student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_PEYVASTEH) ||
-                student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_NAPEYVASTEH) ||
-                student.getEduStage().equals(EduStages.DOCTORAYE_PEYVASTEH) ||
-                student.getEduStage().equals(EduStages.DOCTORAYE_HERFEYI)) {
+        } else if (EduStages.level2.contains(student.getEduStage())) {
             amount = 2600000;
         } else {
             amount = 65000000;
         }
         LocalDate getLoanDate = LocalDate.now();
-
         Loan loan = Loan.builder()
                 .student(student)
                 .studentStage(student.getEduStage())
@@ -757,9 +741,11 @@ public class Menu {
         } else {
             inputDate = LocalDate.of(student.getAppliedYear(), 10, 1);
         }
-        if (student.getEduStage().equals(EduStages.KARDANI) || student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_NAPEYVASTEH)) {
+        if (student.getEduStage().equals(EduStages.KARDANI) || student.getEduStage()
+                .equals(EduStages.KARSHENASI_ARSHAD_NAPEYVASTEH)) {
             student.setExpireDate(inputDate.plusYears(2));
-        } else if (student.getEduStage().equals(EduStages.KARSHENASI_PEYVASTEH) || student.getEduStage().equals(EduStages.KARSHENASI_NAPEYVASTEH)) {
+        } else if (student.getEduStage().equals(EduStages.KARSHENASI_PEYVASTEH) || student.getEduStage()
+                .equals(EduStages.KARSHENASI_NAPEYVASTEH)) {
             student.setExpireDate(inputDate.plusYears(4));
         } else if (student.getEduStage().equals(EduStages.KARSHENASI_ARSHAD_PEYVASTEH)) {
             student.setExpireDate(inputDate.plusYears(6));
@@ -767,8 +753,6 @@ public class Menu {
             student.setExpireDate(inputDate.plusYears(5));
         }
     }
-
-
     public Boolean isAfterGraduationDate() {
         LocalDate localDate = studentService.findById(loggedInUserId).getExpireDate();
         PersianDate nowPersianDate = PersianDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
