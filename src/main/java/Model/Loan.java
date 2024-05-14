@@ -33,6 +33,7 @@ public class Loan extends BaseEntity<Long> {
     @OneToMany(mappedBy = "loan",cascade = CascadeType.MERGE)
     List<Installment> installment;
     Boolean isSettlement;
+    Integer currentPayLevel;
     @ManyToOne
     Card card;
     @OneToOne

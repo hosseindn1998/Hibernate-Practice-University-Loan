@@ -24,7 +24,7 @@ public class Menu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final PersianDate nowForExample = PersianDate.of(1397, 11, 1);
+    private final PersianDate nowForExample = PersianDate.of(1399, 12, 1);
 
 
     public void publicMenu() {
@@ -261,8 +261,9 @@ public class Menu {
 
     public AppliedTypes getAppliedType() {
         System.out.println("نوع قبولی خود را انتخاب کنید :");
-        System.out.println("    1-ROOZANEH\n" +
-                "    2-SHABANEH");
+        System.out.println("""
+                1-ROOZANEH
+                2-SHABANEH""");
         AppliedTypes appliedType = null;
         do {
             int number = getIntFromUser();
@@ -566,6 +567,7 @@ public class Menu {
                 .studentStage(student.getEduStage())
                 .getLoanTerm(student.getCurrentTerm())
                 .amount(amount)
+                .currentPayLevel(1)
                 .getLoanDate(getLoanDate)
                 .card(card)
                 .loanType(LoanTypes.EDUCATION)
@@ -650,6 +652,7 @@ public class Menu {
                 .getLoanDate(nowForExample.toLocalDate())
                 .getLoanTerm(student.getCurrentTerm())
                 .studentCity(city)
+                .currentPayLevel(1)
                 .card(card)
                 .morInfoForHousingLoan(morInfoForHousingLoan)
                 .isSettlement(Boolean.FALSE)
@@ -697,7 +700,7 @@ public class Menu {
         Card card = getCardFromInput();
         caredService.saveOrUpdate(card);
 
-        int amount ;
+        int amount;
         Student student = studentService.findById(loggedInUserId);
         if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1300000;
@@ -713,6 +716,7 @@ public class Menu {
                 .getLoanTerm(student.getCurrentTerm())
                 .amount(amount)
                 .getLoanDate(getLoanDate)
+                .currentPayLevel(1)
                 .isSettlement(Boolean.FALSE)
                 .loanType(LoanTypes.TUITION)
                 .card(card)
@@ -780,11 +784,11 @@ public class Menu {
 
             default -> {
                 System.out.println("ورودی نامعتبر");
-                signUpForLoan();
+                seeAndPeyInstallments();
             }
 
         }
-        studentMenu();
+        seeAndPeyInstallments();
     }
 
     public void seeNotPayedInstallments(Integer loanId) {
@@ -808,14 +812,14 @@ public class Menu {
         for (Installment i : payedByLoanId) {
             System.out.println(i.getPaymentStageNum() + " - " + i.getPayDate());
         }
+
     }
 
     public void payInstallment(Integer loanId) {
         seeNotPayedInstallments(loanId);
-        System.out.println("لطفا شماره قسط مورد نظر خود را برای پرداخت وارد کنید");
-        Integer installmentId = getIntFromUser();
         try {
-            Installment installment = installmentService.findById(Long.valueOf(installmentId.toString()));
+            Installment installment = installmentService.findById(Long.valueOf(loanService.findById(Long.valueOf(loanId.toString()))
+                    .getCurrentPayLevel()));
             Card card = getCardFromInput();
             Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
             if (
@@ -830,13 +834,19 @@ public class Menu {
                 installment.setPayedStatus(Boolean.TRUE);
                 installmentService.saveOrUpdate(installment);
                 System.out.println("پرداخت با موفقیت انجام شد");
+                Loan loan=loanService.findById(Long.valueOf(loanId.toString()));
+                loan.setCurrentPayLevel(
+                        loanService.findById(Long.valueOf(loanId.toString())).getCurrentPayLevel() + 1);
+                loanService.saveOrUpdate(loan);
+                studentMenu();
             } else {
                 System.out.println("شماره کارت یا اطلاعات آن نامعتبر است لطفا کارت مربوط به این وام را به دقت وارد کنید");
+                seeAndPeyInstallments();
             }
         } catch (NotFoundException e) {
             System.out.println(e.getMessage());
         }
-        seeAndPeyInstallments();
+
     }
 }
 
