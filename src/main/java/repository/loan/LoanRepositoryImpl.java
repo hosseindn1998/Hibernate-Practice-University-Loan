@@ -19,7 +19,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
         query.setParameter("getLoanTerm", student.getCurrentTerm());
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
     @Override
     public Boolean isExistTuitionLoanInTerm(Student student) {
@@ -28,7 +28,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
         query.setParameter("getLoanTerm", student.getCurrentTerm());
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
     @Override
     public Boolean isExistHousingLoanInTerm(Student student) {
@@ -36,15 +36,14 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
         Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=2 and l.studentStage= :studentStage" , Loan.class);
         query.setParameter("username", student.getUsername());
         query.setParameter("studentStage", student.getEduStage());
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
     @Override
     public Boolean wifeHousingLoanCheck(String wifeNationalCode) {
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
         Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.username = :username and l.loanType=2" , Loan.class);
         query.setParameter("username", wifeNationalCode);
-//        query.setParameter("studentStage", student.getEduStage());
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
 
     @Override
@@ -52,7 +51,7 @@ public class LoanRepositoryImpl extends BaseRepositoryImpl<Loan,Long> implements
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
         Query<Loan> query = session.createQuery("FROM Loan l WHERE l.student.id = :id" , Loan.class);
         query.setParameter("id", studentId);
-        return query.list();
+        return query.getResultList();
     }
 
     public LoanRepositoryImpl(SessionFactory sessionFactory) {

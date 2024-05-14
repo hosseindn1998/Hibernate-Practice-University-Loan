@@ -23,14 +23,14 @@ public class InstallmentRepositoryImpl extends BaseRepositoryImpl<Installment,Lo
             Session session = SessionFactorySingleton.getInstance().getCurrentSession();
             Query<Installment> query = session.createQuery("FROM Installment I WHERE I.loan.id = :id AND I.payedStatus=false " , Installment.class);
             query.setParameter("id", loanId);
-            return query.list();
+            return query.getResultList();
     }
     @Override
     public List<Installment> findPayedByLoanId(Integer loanId) {
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
         Query<Installment> query = session.createQuery("FROM Installment I WHERE I.loan.id = :id AND I.payedStatus=true " , Installment.class);
         query.setParameter("id", loanId);
-        return query.list();
+        return query.getResultList();
     }
 
     @Override

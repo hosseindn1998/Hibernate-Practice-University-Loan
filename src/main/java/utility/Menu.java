@@ -365,18 +365,20 @@ public class Menu {
             password[i] = passSymbols.charAt(rnd.nextInt(passSymbols.length()));
 
         }
-        return password.toString().substring(1,9);
+        return password.toString().substring(1, 9);
     }
 
     public void signUp() {
         Student student = getStudentFromInput();
-        ApplicationContext.getStudentService().saveOrUpdate(student);
-        if (studentService.isExistsByUsername(student.getUsername())) {
+        if (!studentService.isExistsByUsername(student.getUsername())) {
+            ApplicationContext.getStudentService().saveOrUpdate(student);
             System.out.println("ثبت نام با موفقیت انجام شد . برای ورود می توانید با نام کاربری و رمز عبور زیر اقدام فرمایید.");
             System.out.println("نام کاربری :");
             System.out.println(student.getUsername());
             System.out.println("کلمه عبور :");
             System.out.println(student.getPassword());
+        }else{
+            System.out.println("شما قبلا ثبت نام کرده اید.لطفا با نام کاربری و رمز عبور خود وارد شوید");
         }
         publicMenu();
     }
@@ -505,10 +507,14 @@ public class Menu {
 
         //////////////////////////////////
         long[] installments = new long[60];
+        int count;
         for (int i = 0; i < 5; i++) {
-            int baghimande = (5 - i) / 5 * amount;
+//            double amountDouble=amount*1.04;
+//            int baghimande = (5 - i) / 5 * amount; //جهت قسط با سود سالیانه از مبلغ باقی مانده
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(((2 * i + 1) * 0.04 * amount / 12) + 0.04 * baghimande / 12);
+//                installments[12 * i + j] = Math.round(((2 * i + 1) * 0.04 * amount / 12) + 0.04 * amount /60);
+                count=2^i;
+                installments[12 * i + j] = Math.round (amount*1.04*count /(31*12));
             }
         }
 
@@ -563,7 +569,7 @@ public class Menu {
 
     public void housingLoan() {
         MorInfoForHousingLoan morInfoForHousingLoan = getMorInfoForHousingLoan();
-        if (!loanService.wifeHousingLoanCheck(morInfoForHousingLoan.getWifeNationalCode())) {
+        if (loanService.wifeHousingLoanCheck(morInfoForHousingLoan.getWifeNationalCode())) {
             System.out.println("همسر شما قبلا از این وام استفاده کرده لذا شما واجد شرایط نمی باشید");
             studentMenu();
         }

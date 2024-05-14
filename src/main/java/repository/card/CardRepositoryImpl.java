@@ -24,7 +24,7 @@ public class CardRepositoryImpl extends BaseRepositoryImpl<Card,Long> implements
         query.setParameter("fourNumber2", card.getFourNumber2());
         query.setParameter("fourNumber3", card.getFourNumber3());
         query.setParameter("fourNumber4", card.getFourNumber4());
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
 
     @Override

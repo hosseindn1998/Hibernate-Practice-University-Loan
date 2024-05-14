@@ -24,7 +24,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student,Long> impl
         Session session = SessionFactorySingleton.getInstance().getCurrentSession();
         Query<Student> query = session.createQuery("FROM Student s WHERE s.username = :username", Student.class);
         query.setParameter("username", username);
-        return query.list()!= null;
+        return !query.getResultList().isEmpty();
     }
 
     @Override
