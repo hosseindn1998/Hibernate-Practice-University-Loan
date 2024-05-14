@@ -1,9 +1,7 @@
 package Model;
 
 import base.entity.BaseEntity;
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;

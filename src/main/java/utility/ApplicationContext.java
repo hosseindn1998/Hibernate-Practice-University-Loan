@@ -1,11 +1,9 @@
 package utility;
 
 
-import Model.MorInfoForHousingLoan;
 import repository.card.CardRepositoryImpl;
 import repository.installment.InstallmentRepositoryImpl;
 import repository.loan.LoanRepositoryImpl;
-//import repository.moreinfo.MorInfoForHousingLoanRepositoryImpl;
 import repository.morInfo.MorInfoForHousingLoanRepositoryImpl;
 import repository.student.StudentRepositoryImpl;
 import connection.SessionFactorySingleton;
