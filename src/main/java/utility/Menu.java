@@ -565,22 +565,14 @@ public class Menu {
         //////////////////////////////////
         long[] installments = new long[60];
         int count;
-        Double amountDB=amount*1.04;
-        Double instalmentPerYear=amountDB/31;
-        double baghimande=amountDB;
-        double sum=0;
+        double amountDB=amount*1.04;
+        double instalmentPerYear=amountDB/31;
         for (int i = 0; i < 5; i++) {
-
-//            double amountDouble=amount*1.04;
-//            int baghimande = (5 - i) / 5 * amount; //جهت قسط با سود سالیانه از مبلغ باقی مانده
-            count = 2 ^ i;
+            count = (int) Math.pow(2,i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = (long) (Math.round(count*instalmentPerYear/12) + 0.04 * baghimande /60);
+                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
 
-//                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
-                sum=+installments[12 * i + j];
             }
-            baghimande=amountDB-12*sum;
         }
 
         for (int i = 0; i < 60; i++) {
@@ -674,10 +666,14 @@ public class Menu {
 
         //////////////////////////////////
         long[] installments = new long[60];
+        int count;
+        double amountDB=amount*1.04;
+        double instalmentPerYear=amountDB/31;
         for (int i = 0; i < 5; i++) {
-            int baghimande = (5 - i) / 5 * amount;
+            count = (int) Math.pow(2,i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(((2 * i + 1) * 0.04 * amount / 12) + 0.04 * baghimande / 12);
+                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+
             }
         }
 
@@ -762,10 +758,14 @@ public class Menu {
 
         //////////////////////////////////
         long[] installments = new long[60];
+        int count;
+        double amountDB=amount*1.04;
+        double instalmentPerYear=amountDB/31;
         for (int i = 0; i < 5; i++) {
-            int baghimande = (5 - i) / 5 * amount;
+            count = (int) Math.pow(2,i);
             for (int j = 0; j < 12; j++) {
-                installments[12 * i + j] = Math.round(((2 * i + 1) * 0.04 * amount / 12) + 0.04 * baghimande / 12);
+                installments[12 * i + j] = Math.round(count*instalmentPerYear/12);
+
             }
         }
 
