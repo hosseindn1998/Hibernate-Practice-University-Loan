@@ -36,7 +36,7 @@ public class Menu {
     private final Scanner scanner = new Scanner(System.in);
     //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
 //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
-    private PersianDate nowForExample = PersianDate.of(1403, 02, 01);
+    private PersianDate nowForExample = PersianDate.of(1402, 11, 01);
 
 
     public void calculateLastTerm(int currentTermYear, int currentTermNumber) {
@@ -123,16 +123,16 @@ public class Menu {
 
     public void updateCurrentTerm() {
         Student student = studentService.findById(loggedInUserId);
-        LocalDate loginDate = LocalDate.of(1403, 2, 21);
-        LocalDate inputDate;
-        LocalDate mehrDate = LocalDate.of(student.getAppliedYear(), 7, 1);
-        LocalDate bahmanDate = LocalDate.of(student.getAppliedYear(), 10, 1);
+        PersianDate loginDate = nowForExample;
+        PersianDate inputDate;
+        PersianDate mehrDate = PersianDate.of(student.getAppliedYear(), 7, 1);
+        PersianDate bahmanDate = PersianDate.of(student.getAppliedYear(), 10, 1);
         if (student.getAppliedTerm().equals(AppliedTerm.MEHR)) {
             inputDate = mehrDate;
         } else {
             inputDate = bahmanDate;
         }
-        int term = Period.between(inputDate, loginDate).getYears() * 2;
+        int term = Period.between(inputDate.toLocalDate(), loginDate.toLocalDate()).getYears() * 2;
         if (loginDate.getDayOfYear() >= 187 & loginDate.getDayOfYear() < 317)
             if (student.getAppliedTerm().equals(AppliedTerm.MEHR)) {
                 term++;
@@ -175,6 +175,7 @@ public class Menu {
         String birthDateStr;
         String studentCode;
         String universityName;
+        Integer appliedYear;
 
         do {
             System.out.println("نام خود را وارد کنید(حرف اول بزرگ) :");
@@ -231,8 +232,10 @@ public class Menu {
         } while (!Validation.isValidName(universityName));
         UniversityTypes universityType = getUniversityType();
         AppliedTerm appliedTerm = getAppliedTerm();
-        System.out.println("سال ورود خود را به دانشگاه وارد کنید(مثلا 1403) :");
-        Integer appliedYear = getIntFromUser();
+        do{
+            System.out.println("سال ورود خود را به دانشگاه وارد کنید (مثلا 1403) :");
+            appliedYear = getIntFromUser();
+        }while (!(appliedYear>1357 && appliedYear<= nowForExample.getYear()));
         EduStages eduStage = getEduStage();
         String password = generatePassword();
         Student student = Student.builder()
