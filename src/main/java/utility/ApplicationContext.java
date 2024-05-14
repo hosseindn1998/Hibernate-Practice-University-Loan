@@ -20,7 +20,6 @@ import service.student.StudentServiceImpl;
 
 public class ApplicationContext {
     static final SessionFactory SESSION_FACTORY;
-//////    static final Session SESSION;
     private static final StudentRepositoryImpl STUDENT_REPOSITORY;
     private static final StudentServiceImpl STUDENT_SERVICE;
     private static final CardRepositoryImpl CARD_REPOSITORY;

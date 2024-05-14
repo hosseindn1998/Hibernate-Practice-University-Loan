@@ -20,10 +20,6 @@ import java.util.*;
 
 //@NoArgsConstructor
 public class Menu {
-    private int currentTermYear = 403;
-    private int lastTermYear = 0;
-    private int currentTermNumber = 2;
-    private int lastTermNumber = 0;
     private String username = null;
     private String password = null;
     private Long loggedInUserId;
@@ -35,20 +31,9 @@ public class Menu {
     private final MorInfoForHousingLoanServiceImpl morInfoForHousingLoanService = ApplicationContext.getMorInfoForHousingLoanService();
 
     private final Scanner scanner = new Scanner(System.in);
-    //    private LocalDate nowForExample=LocalDate.of(1403,02,20);
-//    private LocalDate nowForExample=LocalDate.of(1403,02,20);
+
     private PersianDate nowForExample = PersianDate.of(1397, 11, 01);
 
-
-    public void calculateLastTerm(int currentTermYear, int currentTermNumber) {
-        if (currentTermNumber == 1) {
-            lastTermYear = currentTermYear - 1;
-            lastTermNumber = 2;
-        } else {
-            lastTermYear = currentTermYear;
-            lastTermNumber = 1;
-        }
-    }
 
 
     public void publicMenu() {
@@ -562,7 +547,7 @@ public class Menu {
         loanService.saveOrUpdate(loan);
 
 
-        //////////////////////////////////
+
         long[] installments = new long[60];
         int count;
         double amountDB=amount*1.04;
@@ -664,7 +649,7 @@ public class Menu {
                 .build();
         loanService.saveOrUpdate(loan);
 
-        //////////////////////////////////
+
         long[] installments = new long[60];
         int count;
         double amountDB=amount*1.04;
@@ -802,7 +787,7 @@ public class Menu {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
+
 
 
     public Boolean isAfterGraduationDate() {
