@@ -361,13 +361,24 @@ public class Menu {
 
         String passSymbols = charsCaps + chars + nums + symbols;
         Random rnd = new Random();
-
+        boolean containNum=false;
+        boolean containSym=false;
         char[] password = new char[8];
-        for (int i = 0; i < 8; i++) {
-            password[i] = passSymbols.charAt(rnd.nextInt(passSymbols.length()));
+        do{
+            for (int i = 0; i < 8; i++) {
+                password[i] = passSymbols.charAt(rnd.nextInt(passSymbols.length()));
+            }
+            for (Character c: password) {
+                if (nums.contains(c.toString())) {
+                    containNum = true;
+                }
+                else if (symbols.contains(c.toString())) {
+                    containSym = true;
+                }
+            }
 
-        }
-        return Arrays.toString(password).substring(1, 9);
+        }while (!(containNum&&containSym));
+        return new String(password);
     }
 
     public void signUp() {
