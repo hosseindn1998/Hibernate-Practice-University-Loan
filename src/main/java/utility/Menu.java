@@ -788,7 +788,7 @@ public class Menu {
             }
 
         }
-        seeAndPeyInstallments();
+        studentMenu();
     }
 
     public void seeNotPayedInstallments(Integer loanId) {
@@ -809,8 +809,9 @@ public class Menu {
             System.out.println("قسط پرداخت شده ای با این شماره وام یافت نشد لطفا درصورت اطمینان از پرداخت، شماره وام وارد شده را چک کنید");
             seeAndPeyInstallments();
         }
+        System.out.println("مبلغ قسط - تاریخ پرداخت - مرحله پرداخت");
         for (Installment i : payedByLoanId) {
-            System.out.println(i.getPaymentStageNum() + " - " + i.getPayDate());
+            System.out.println(i.getPaymentStageNum() +" - " + i.getPayDate()+" - "+ i.getAmount());
         }
 
     }
@@ -832,6 +833,8 @@ public class Menu {
                             fetchCard.getExpireMonth().equals(card.getExpireMonth())
             ) {
                 installment.setPayedStatus(Boolean.TRUE);
+                installment.setPayDate(LocalDate.of(nowForExample.getYear(), nowForExample
+                        .getMonthValue(),nowForExample.getDayOfMonth()));
                 installmentService.saveOrUpdate(installment);
                 System.out.println("پرداخت با موفقیت انجام شد");
                 Loan loan=loanService.findById(Long.valueOf(loanId.toString()));
