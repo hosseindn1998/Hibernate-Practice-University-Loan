@@ -24,7 +24,7 @@ public class Menu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final PersianDate nowForExample = PersianDate.of(1399, 12, 1);
+    private final PersianDate nowForExample = PersianDate.of(1399, 11, 1);
 
 
     public void publicMenu() {
@@ -708,11 +708,16 @@ public class Menu {
     }
 
     public void tuitionLoan() {
+        Student student = studentService.findById(loggedInUserId);
+        if(student.getAppliedType().equals(AppliedTypes.ROOZANEH)){
+            System.out.println("این وام مختص دانشجویان روزانه نیست");
+            studentMenu();
+        }
         Card card = getCardFromInput();
         caredService.saveOrUpdate(card);
 
         int amount;
-        Student student = studentService.findById(loggedInUserId);
+
         if (EduStages.level1.contains(student.getEduStage())) {
             amount = 1300000;
         } else if (EduStages.level2.contains(student.getEduStage())) {
