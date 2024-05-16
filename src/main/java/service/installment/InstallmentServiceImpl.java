@@ -1,12 +1,9 @@
 package service.installment;
 
-import Model.Card;
 import Model.Installment;
-import Model.Loan;
 import base.service.BaseServiceImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import repository.card.CardRepository;
 import repository.installment.InstallmentRepository;
 
 import java.util.List;
@@ -17,6 +14,19 @@ public class InstallmentServiceImpl extends BaseServiceImpl<Installment,Long, In
     public InstallmentServiceImpl(InstallmentRepository repository, SessionFactory sessionFactory) {
         super(repository, sessionFactory);
         this.sessionFactory=sessionFactory;
+    }
+
+    @Override
+    public Installment paymentByPaymentLevel(Integer loanId, Integer paymentLevel) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Installment result=repository.paymentByPaymentLevel(loanId,paymentLevel);
+            session.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @Override

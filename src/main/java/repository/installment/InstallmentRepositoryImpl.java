@@ -1,8 +1,7 @@
 package repository.installment;
 
-import Model.Card;
+
 import Model.Installment;
-import Model.Loan;
 import base.repository.BaseRepositoryImpl;
 import connection.SessionFactorySingleton;
 import org.hibernate.Session;
@@ -24,6 +23,14 @@ public class InstallmentRepositoryImpl extends BaseRepositoryImpl<Installment,Lo
             Query<Installment> query = session.createQuery("FROM Installment I WHERE I.loan.id = :id AND I.payedStatus=false " , Installment.class);
             query.setParameter("id", loanId);
             return query.getResultList();
+    }
+    @Override
+    public Installment paymentByPaymentLevel(Integer loanId,Integer paymentLevel) {
+        Session session = SessionFactorySingleton.getInstance().getCurrentSession();
+        Query<Installment> query = session.createQuery("FROM Installment I WHERE I.loan.id = :id AND I.payedStatus=false And I.paymentStageNum= :paymentLevel" , Installment.class);
+        query.setParameter("id", loanId);
+        query.setParameter("paymentLevel", paymentLevel);
+        return query.getSingleResult();
     }
     @Override
     public List<Installment> findPayedByLoanId(Integer loanId) {

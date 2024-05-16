@@ -835,8 +835,10 @@ public class Menu {
     public void payInstallment(Integer loanId) {
         seeNotPayedInstallments(loanId);
         try {
-            Installment installment = installmentService.findById(Long.valueOf(loanService.findById(Long.valueOf(loanId.toString()))
-                    .getCurrentPayLevel()));
+//            Installment installment = installmentService.findById(Long.valueOf(loanService.findById(Long.valueOf(loanId.toString()))
+//                    .getCurrentPayLevel()));
+            Installment installment=installmentService.paymentByPaymentLevel(loanId,loanService.findById(Long.valueOf(loanId.toString()))
+                    .getCurrentPayLevel());
             Card card = getCardFromInput();
             Card fetchCard = loanService.findById(Long.valueOf(loanId.toString())).getCard();
             if (
@@ -864,7 +866,9 @@ public class Menu {
             }
         } catch (NotFoundException e) {
             System.out.println(e.getMessage());
-        }
+        }catch (NullPointerException e) {
+        System.out.println("خطای غیر منتظره");
+    }
 
     }
 }
